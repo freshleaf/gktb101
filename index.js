@@ -14,9 +14,11 @@ var handlebars = require('express-handlebars').create({
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
-app.set('port', process.env.PORT || 6666);
-
 // router
+app.get('/1', function (req, res) {
+    res.send('Hello world')
+})
+
 require('./routes.js')(app);
 
 app.use(function (req, res) {
@@ -29,7 +31,10 @@ app.use(function (req, res) {
     res.render('500');
 });
 
-app.listen(app.get('port'), function () {
-    console.log('Express started on hostname:' +
-        app.get('port') + '; press Ctrl-C to terminate.');
+app.set('port', process.env.PORT || 10010);
+var server = app.listen(app.get('port'), function () {
+    var host = server.address().address
+    var port = server.address().port
+
+    console.log("start http://%s:%s, press Ctrl+C to cancel", host, port)
 });
