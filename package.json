@@ -1,0 +1,19 @@
+{
+  "name": "gktb101",
+  "version": "0.1.0",
+  "description": "data analysis of entrance exam score",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/freshleaf/gktb101.git"
+  },
+  "author": "freshleaf@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/freshleaf/gktb101/issues"
+  },
+  "homepage": "https://github.com/freshleaf/gktb101#readme"
+}
