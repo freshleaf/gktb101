@@ -2,7 +2,7 @@
   "name": "gktb101",
   "version": "0.1.0",
   "description": "data analysis of entrance exam score",
-  "main": "index.js",
+  "main": "gktb101.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,5 +20,8 @@
     "express": "^4.16.4",
     "express-handlebars": "^3.0.2",
     "mysql": "^2.16.0"
+  },
+  "devDependencies": {
+    "mocha": "^6.1.2"
   }
 }
