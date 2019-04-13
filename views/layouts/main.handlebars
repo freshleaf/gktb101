@@ -2,8 +2,29 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+{{{_sections.head}}}
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+{{#if showTests}}
+    <link rel="stylesheet" href="/vendor/mocha.css">
+{{/if}}
 </head>
 <body>
-{{{body}}}
+    {{{body}}}
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+{{#if showTests}}
+    <div id="mocha"></div>
+    <script src="/vendor/mocha.js"></script>
+    <script src="/vendor/chai.js"></script>
+    <script>
+        mocha.ui('tdd');
+        var assert = chai.assert;
+    </script>
+    <script src="/qa/tests-global.js"></script>
+{{#if pageTestScript}}
+    <script src="{{pageTestScript}}"></script>
+{{/if}}
+    <script>mocha.run();</script>
+{{/if}}
 </body>
 </html>
