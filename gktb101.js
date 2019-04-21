@@ -45,7 +45,7 @@ app.use(function (req, res, next) {
                 // plain Node response
                 console.error('Express error mechanism failed.\n', error.stack);
                 res.statusCode = 500;
-                res.setHeader('content-type', 'text/plain');
+                res.setHeader('Content-Type', 'text/plain');
                 res.end('Server error.');
             }
         } catch (error) {
@@ -86,6 +86,10 @@ app.use(function (req, res, next) {
 // router
 require('./routes.js')(app);
 
+// TODO
+// api
+// require('./apis.js')(app);
+
 app.use(function (req, res) {
     res.status(404);
     res.render('404');
@@ -98,6 +102,7 @@ app.use(function (err, req, res) {
 });
 
 var server;
+
 function startServer() {
     // NODE_ENV=production node gktb101.js
     server = app.listen(app.get('port'), function () {

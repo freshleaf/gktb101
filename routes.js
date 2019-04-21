@@ -6,4 +6,5 @@ module.exports = function (app) {
     });
     app.get('/', main.home);
     app.get('/about', main.about);
+    app.get('/scoreline/location', main.location_line);
 };

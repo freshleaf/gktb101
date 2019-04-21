@@ -1,0 +1,36 @@
+{{#section 'head'}}
+    <title>高考填报101 历年地区批次分数线</title>
+    <meta name="description" content="查看历年高考地区批次分数线">
+    <meta name="keywords" content="查看历年高考地区批次分数线">
+{{/section}}
+
+<form>
+    <select name="location">
+        <option value="">不限</option>
+        {{#each location}}
+            <option value="{{code}}">{{name}}</option>
+        {{/each}}
+    </select>
+    <input type="submit" />
+    <br>
+    <table border="1">
+        <tr>
+            <th></th>
+            <th>年份</th>
+            <th>地区</th>
+            <th>文理分科</th>
+            <th>批次</th>
+            <th>分数线</th>
+        </tr>
+        {{#each scoreline}}
+            <tr>
+                <td>{{no}}</td>
+                <td>{{year}}</td>
+                <td>{{location}}</td>
+                <td>{{student_type}}</td>
+                <td>{{batch}}</td>
+                <td>{{socre}}</td>
+            </tr>
+        {{/each}}
+    </table>
+</form>

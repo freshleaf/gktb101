@@ -1,2 +1,18 @@
     <h1>about</h1>
-    {{location}}
+{{#each myLocations}}
+    {{name}}
+{{/each}}
+    <table>
+        <tr>
+            <th>order</th>
+            <th>name</th>
+            <th>code</th>
+        </tr>
+{{#each location}}
+        <tr>
+            <td>{{order}}</td>
+            <td>{{name}}</td>
+            <td>{{code}}</td>
+        </tr>
+{{/each}}
+    </table>
