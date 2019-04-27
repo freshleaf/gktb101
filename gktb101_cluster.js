@@ -30,3 +30,6 @@ if (cluster.isMaster) {
     // start our app on worker; see meadowlark.js
     require('./gktb101.js')();
 }
+
+// start command
+// NODE_ENV=production node gktb101_cluster.js

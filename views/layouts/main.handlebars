@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html class="h-100">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 {{{_sections.head}}}
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
     <link rel="stylesheet" href="/vendor/bootstrap/4.3.1/css/bootstrap.css"/>
+    {{!--
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    --}}
     <link rel="stylesheet" href="/css/site.css"/>
 {{#if showTests}}
     <link rel="stylesheet" href="/vendor/mocha.css">
@@ -13,6 +17,12 @@
 </head>
 <body>
     {{{body}}}
+    {{!--
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    {{! popper.min.js 用于弹窗、提示、下拉菜单 }}
+    <script src="https://cdn.bootcss.com/popper.js/1.12.5/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    --}}
     <script src="/vendor/jquery/3.4.0/jquery.js"></script>
     <script src="/vendor/poper/1.15.0/umd/popper.js"></script>
     <script src="/vendor/bootstrap/4.3.1/js/bootstrap.js"></script>

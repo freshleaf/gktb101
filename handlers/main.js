@@ -21,7 +21,7 @@ exports.home = function (req, res) {
     res.render('home');
 };
 
-exports.about = function (req, res) {
+exports.test = function (req, res) {
     openConnection();
     var sql = 'SELECT * FROM location ORDER BY location_order';
 
@@ -39,7 +39,7 @@ exports.about = function (req, res) {
                 locationList.push(location);
             }
         }
-        res.render('about', {location: locationList, myLocations: static.getLocations()});
+        res.render('test', {location: locationList, myLocations: static.getLocations()});
     });
     closeConnection();
 };
