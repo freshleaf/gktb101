@@ -55,7 +55,7 @@ exports.location_line = function (req, res) {
     var code = req.query.location;
     var whereCondition = null;
     if (code) {
-        whereCondition = "WHERE location_batch_line.registration_location_code = ? ";
+        whereCondition = 'WHERE location_batch_line.registration_location_code = ? ';
     }
 
     openConnection();
@@ -80,7 +80,7 @@ exports.location_line = function (req, res) {
                 scoreline.student_type = results[i].student_type;
                 scoreline.batch = results[i].batch;
                 scoreline.socre = results[i].score_line;
-                scorelineList.push(scoreline)
+                scorelineList.push(scoreline);
             }
         }
         res.render('score_line_location', {location: data.getLocations(), scoreline: scorelineList});
@@ -90,6 +90,7 @@ exports.location_line = function (req, res) {
 
 exports.setGoal = function (req, res) {
     var i, length = 0;
+    var temp = {};
 
     var locations = data.getLocations();
     var studentLocs = [];
@@ -100,7 +101,7 @@ exports.setGoal = function (req, res) {
     }
     for (i = 0; i < length; i++) {
         var location = locations[i];
-        var temp = {};
+        temp = {};
         temp.name = location.name;
         temp.code = location.code;
         if (temp.code == req.query.sl) {
@@ -127,7 +128,6 @@ exports.setGoal = function (req, res) {
 
     var types = data.getStudentTypes();
     if (req.query.type) {
-        var i;
         for (i = 0; i < types.length; i++) {
             var type = types[i];
             if (type.code == req.query.type) {
@@ -147,7 +147,7 @@ exports.setGoal = function (req, res) {
     }
     for (i = 0; i < length; i++) {
         var majorClass = majorClasses[i];
-        var temp = {};
+        temp = {};
         temp.code = majorClass.code;
         temp.name = majorClass.name;
         if (i == 0) {
@@ -167,7 +167,6 @@ exports.setGoal = function (req, res) {
     if (subClasses && subClasses.length > 0) {
         subClassCode = subClasses[0].code;
         if (req.query.subClass) {
-            var i;
             for (i = 0; i < subClasses.length; i++) {
                 var subClass = subClasses[i];
                 if (subClass.code == req.query.subClass) {
@@ -190,12 +189,16 @@ exports.setGoal = function (req, res) {
         var universityLines = [];
         majorLines = data.getMajorLine(req.query.sl, subClassCode, req.query.ul);
         universityLines = data.getUniversityLine(req.query.sl, req.query.ul);
-        var i, j = 0, lengthUniversity = 0, lengthMajor = 0;
+        var j = 0, lengthUniversity = 0, lengthMajor = 0;
         if (universityLines) {
             lengthUniversity = universityLines.length;
         }
         var tempUniversityCode;
         var score = {};
+        var goalItemList = [];
+        if (req.session.goal && req.session.goal.items) {
+            goalItemList = req.session.goal.items;
+        }
         for (i = 0; i < lengthUniversity; i++) {
             var university = universityLines[i];
             var universityScore = {};
@@ -208,6 +211,10 @@ exports.setGoal = function (req, res) {
             universityScore.admissionsNumber = university.admissions_number;
             universityScore.provinceLine = formatScore(university.score_line);
             universityScore.label = university.university_code + '_0_' + university.student_type;
+            j = goalItemList.indexOf(universityScore.label);
+            if (j >= 0) {
+                universityScore.isGoal = true;
+            }
             if (tempUniversityCode === university.university_code) {
                 score.universityScore.push(universityScore);
                 score.itemCount = score.itemCount + 1;
@@ -221,7 +228,7 @@ exports.setGoal = function (req, res) {
                 score.universityScore = [];
                 score.universityScore.push(universityScore);
                 score.itemCount = 1;
-                scoreLine.push(score)
+                scoreLine.push(score);
             }
         }
         if (majorLines) {
@@ -241,9 +248,13 @@ exports.setGoal = function (req, res) {
             majorScore.admissionsNumber = major.admissions_number;
             majorScore.provinceLine = formatScore(major.score_line);
             majorScore.label = major.university_code + '_' + major.major_code + '_' + major.student_type;
+            j = goalItemList.indexOf(majorScore.label);
+            if (j >= 0) {
+                majorScore.isGoal = true;
+            }
             var isFound = false;
             for (j = 0; j < scoreLine.length; j++) {
-                var score = scoreLine[j];
+                score = scoreLine[j];
                 if (score.universityCode === major.university_code) {
                     if (!score.majorScore) {
                         score.majorScore = [];
@@ -254,7 +265,7 @@ exports.setGoal = function (req, res) {
                 }
             }
             if (!isFound) {
-                var score = {};
+                score = {};
                 score.universityCode = major.university_code;
                 score.universityName = major.university_name;
                 score.is985 = major.is_985;
@@ -266,7 +277,7 @@ exports.setGoal = function (req, res) {
             }
         }
         for (i = 0; i < scoreLine.length; i++) {
-            var score = scoreLine[i];
+            score = scoreLine[i];
             if (score.majorScore) {
                 score.majorScore[0].isFirstLine = true;
             } else if (score.universityScore) {
@@ -312,15 +323,59 @@ exports.changeGoal = function (req, res) {
         }
     }
     if ('del' === req.query.action) {
-        var i = req.session.goal.items.indexOf(item);
+        i = req.session.goal.items.indexOf(item);
         if (i >= 0) {
             req.session.goal.items.splice(i, 1);
         }
     }
-    console.log(req.session.goal.items);
     res.send(req.session.goal.items.length.toString());
 };
 
+exports.resetGoal = function (req, res) {
+    if (req.session.goal) {
+        if (req.session.goal.items) {
+            req.session.goal = {};
+            req.session.goal.items = [];
+            res.send('refresh');
+            return;
+        }
+    }
+    res.send('OK');
+};
+
+
 exports.doMatch = function (req, res) {
-    res.render('doMatch');
+    var studentLocs = [];
+    var i;
+    var temp;
+    var locations = data.getLocations();
+    var length = 0;
+    if (locations) {
+        length = locations.length;
+    }
+    for (i = 0; i < length; i++) {
+        var location = locations[i];
+        temp = {};
+        temp.name = location.name;
+        temp.code = location.code;
+        if (temp.code == req.query.sl) {
+            temp.selected = ' selected';
+        } else {
+            temp.selected = '';
+        }
+        studentLocs.push(temp);
+    }
+    var types = data.getStudentTypes();
+    for (i = 0; i < types.length; i++) {
+        temp = types[i];
+        if (temp.code == req.query.type) {
+            temp.selected = ' selected';
+        } else {
+            temp.selected = '';
+        }
+    }
+
+    res.render('doMatch', {
+        location: studentLocs, type: types
+    });
 };

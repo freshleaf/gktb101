@@ -71,18 +71,20 @@
         {{#each university}}
             <div class="mr-2 badge badge-pill badge-secondary mb-2 font-normal-size">{{university_name}}</div>
         {{/each}}
-        <p></p>
-        <button id="submitBtn" type="submit" class="btn btn-primary mb-1">查看分数</button>
+        <div class="d-flex justify-content-between">
+            <button id="submitBtn" type="submit" class="btn btn-primary mb-1">查看分数</button>
+            <div>
+                {{#if goal.items}}
+                    <label id="target">已添加 <span class="text-primary font-weight-bold">{{goal.items.length}}</span> 个目标</label>
+                {{/if}}
+                {{#unless goal.items}}
+                    <label id="target">未添加目标</label>
+                {{/unless}}
+                <a href="/doMatch" class="ml-2">查看匹配 &gt;</a>
+                <button id="resetGoalBtn" type="button" class="btn btn-outline-danger btn-sm ml-3">清空目标</button>
+            </div>
+        </div>
     </form>
-    <p class="text-right">
-        {{#if goal.items}}
-            <label id="target">已添加 <span class="text-primary font-weight-bold">{{goal.items.length}}</span> 个目标</label>
-        {{/if}}
-        {{#unless goal.items}}
-            <label id="target">未添加目标</label>
-        {{/unless}}
-        <a href="#" class="ml-2">查看匹配 &gt;</a>
-    </p>
     <hr>
     {{#if scoreLine}}
         <div class="table-responsive-md">
@@ -125,7 +127,18 @@
                             <td>{{minScore}}</td>
                             <td>{{averageScore}}</td>
                             <td class="text-muted">{{provinceLine}}</td>
-                            <td><button type="button" class="btn btn-outline-primary btn-sm" action="add" label="{{label}}">添加到目标</button></td>
+                            <td>
+                                {{#if isGoal}}
+                                    <button type="button" class="btn btn-outline-danger btn-sm" action="del"
+                                            label="{{label}}">目标中删除
+                                    </button>
+                                {{/if}}
+                                {{#unless isGoal}}
+                                    <button type="button" class="btn btn-outline-primary btn-sm" action="add"
+                                            label="{{label}}">添加到目标
+                                    </button>
+                                {{/unless}}
+                            </td>
                         </tr>
                     {{/each}}
                     {{#each universityScore}}
@@ -149,7 +162,18 @@
                             <td>{{minScore}}</td>
                             <td>{{averageScore}}</td>
                             <td class="text-muted">{{provinceLine}}</td>
-                            <td><button type="button" class="btn btn-outline-primary btn-sm" action="add" label="{{label}}">添加到目标</button></td>
+                            <td>
+                                {{#if isGoal}}
+                                    <button type="button" class="btn btn-outline-danger btn-sm" action="del"
+                                            label="{{label}}">目标中删除
+                                    </button>
+                                {{/if}}
+                                {{#unless isGoal}}
+                                    <button type="button" class="btn btn-outline-primary btn-sm" action="add"
+                                            label="{{label}}">添加到目标
+                                    </button>
+                                {{/unless}}
+                            </td>
                         </tr>
                     {{/each}}
                 {{/each}}
@@ -178,6 +202,15 @@
             });
             $('#studentLocation').change(function () {
                 $('form').submit();
+            });
+            $('#resetGoalBtn').click(function () {
+                $.get("/resetGoal", function (data, status) {
+                    if (status === 'success') {
+                        if (data === 'refresh') {
+                            $('form').submit();
+                        }
+                    }
+                });
             });
 
             $('table button').click(function () {

@@ -11,6 +11,7 @@ module.exports = function (app) {
     app.get('/setGoal', main.setGoal);
     app.get('/doMatch', main.doMatch);
     app.get('/changeGoal', main.changeGoal);
+    app.get('/resetGoal', main.resetGoal);
 
     app.get('/service', static.service);
     app.get('/about', static.about);
