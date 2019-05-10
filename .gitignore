@@ -1,6 +1,7 @@
 # my setting
 .idea
 .DS_Store
+credentials.js
 
 ###########
 

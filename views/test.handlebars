@@ -1,18 +1,18 @@
-    <h1>about</h1>
+<h1>about</h1>
 {{#each myLocations}}
     {{name}}
 {{/each}}
-    <table>
-        <tr>
-            <th>order</th>
-            <th>name</th>
-            <th>code</th>
-        </tr>
-{{#each location}}
+<table>
+    <tr>
+        <th>order</th>
+        <th>name</th>
+        <th>code</th>
+    </tr>
+    {{#each location}}
         <tr>
             <td>{{order}}</td>
             <td>{{name}}</td>
             <td>{{code}}</td>
         </tr>
-{{/each}}
-    </table>
+    {{/each}}
+</table>

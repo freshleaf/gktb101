@@ -5,3 +5,7 @@ exports.service = function (req, res) {
 exports.about = function (req, res) {
     res.render('about');
 };
+
+exports.feedback = function (req, res) {
+    res.render('feedback');
+};

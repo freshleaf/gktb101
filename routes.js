@@ -8,7 +8,11 @@ module.exports = function (app) {
     app.get('/', main.home);
     app.get('/test', main.test);
     app.get('/scoreline/location', main.location_line);
+    app.get('/setGoal', main.setGoal);
+    app.get('/doMatch', main.doMatch);
+    app.get('/changeGoal', main.changeGoal);
 
     app.get('/service', static.service);
     app.get('/about', static.about);
+    app.get('/feedback', static.feedback);
 };

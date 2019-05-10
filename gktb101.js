@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var credentials = require('./credentials.js');
 
 var handlebars = require('express-handlebars').create({
     defaultLayout: 'main',
@@ -15,6 +16,21 @@ app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
 app.set('port', process.env.PORT || 80);
+// cookie
+app.use(require('cookie-parser')(credentials.cookieSecret));
+app.use(require('express-session')({
+    resave: false,
+    saveUninitialized: false,
+    secret: credentials.cookieSecret,
+    cookie:{
+        maxAge:7*24*1000*60*60 // default session expiration is 1 week
+    },
+}));
+// session
+app.use(function(req, res, next){
+    res.locals.goal = req.session.goal;
+    next();
+});
 
 // use domains for better error handling
 app.use(function (req, res, next) {

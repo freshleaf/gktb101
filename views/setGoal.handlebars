@@ -1,0 +1,211 @@
+{{#section 'head'}}
+    <title>高考填报101</title>
+    <meta name="description" content="查看历年高考分数线，学校分数线，专业分数线">
+    <meta name="keywords" content="查看历年高考分数线，学校分数线，专业分数线">
+{{/section}}
+
+{{> header}}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">首页</a></li>
+    <li class="breadcrumb-item active">定目标</li>
+</ol>
+<main role="main" class="container">
+    <form>
+        <div class="form-group row">
+            <div class="col-auto">
+                <label for="studentLocation" class="col-form-label-sm">考生所在地</label>
+            </div>
+            <div class="col-auto">
+                <select id="studentLocation" class="form-control form-control-sm" name="sl">
+                    {{#each location}}
+                        <option value="{{code}}"{{selected}}>{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-auto">
+                <label for="majorClass" class="col-form-label-sm">专业大类</label>
+            </div>
+            <div class="col-auto">
+                <select id="majorClass" class="form-control form-control-sm" name="class">
+                    {{#each majorClass}}
+                        <option value="{{code}}"{{selected}}>{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="col-sm-auto">
+                <label for="majorSubClass" class="col-form-label-sm">专业小类</label>
+            </div>
+            <div class="col-auto">
+                <select id="majorSubClass" class="form-control form-control-sm" name="subClass">
+                    {{#each majorSubClass}}
+                        <option value="{{code}}"{{selected}}>{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+        <label class="mr-4 col-form-label-sm">专业名称</label>
+        {{#each major}}
+            <div class="mr-2 badge badge-pill badge-secondary mb-2 font-normal-size">{{name}}</div>
+        {{/each}}
+        {{#unless major}}
+            <label>未选择</label>
+        {{/unless}}
+        <p></p>
+        <div class="form-group row">
+            <div class="col-auto">
+                <label for="universityLoc" class="col-form-label-sm">985/211高校</label>
+            </div>
+            <div class="col-auto">
+                <select id="universityLoc" class="form-control form-control-sm" name="ul">
+                    {{#each universityLoc}}
+                        <option value="{{code}}"{{selected}}>{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+        {{#unless university}}
+            <label class="form-check-label">无</label>
+        {{/unless}}
+        {{#each university}}
+            <div class="mr-2 badge badge-pill badge-secondary mb-2 font-normal-size">{{university_name}}</div>
+        {{/each}}
+        <p></p>
+        <button id="submitBtn" type="submit" class="btn btn-primary mb-1">查看分数</button>
+    </form>
+    <p class="text-right">
+        {{#if goal.items}}
+            <label id="target">已添加 <span class="text-primary font-weight-bold">{{goal.items.length}}</span> 个目标</label>
+        {{/if}}
+        {{#unless goal.items}}
+            <label id="target">未添加目标</label>
+        {{/unless}}
+        <a href="#" class="ml-2">查看匹配 &gt;</a>
+    </p>
+    <hr>
+    {{#if scoreLine}}
+        <div class="table-responsive-md">
+            <table class="table table-bordered table-hover">
+                <caption>985/211高校 + 本科一批 + 专业及高校招生分数线 (共收录约60万条数据）</caption>
+                <thead class="thead-light">
+                <tr>
+                    <th>高校名称</th>
+                    <th>专业名称</th>
+                    <th>年份</th>
+                    <th>文理科</th>
+                    <th>批次</th>
+                    <th>录取最高分</th>
+                    <th>录取最低分</th>
+                    <th>录取平均分</th>
+                    <th>省控线</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each scoreLine}}
+                    {{#each majorScore}}
+                        <tr>
+                            {{#if isFirstLine}}
+                                <td rowspan="{{../itemCount}}">
+                                    {{../universityName}}<br>
+                                    {{#if ../is985}}
+                                        <span class="badge badge-secondary">985</span>
+                                    {{/if}}
+                                    {{#if ../is211}}
+                                        <span class="badge badge-secondary">211</span>
+                                    {{/if}}
+                                </td>
+                            {{/if}}
+                            <td>{{majorName}}</td>
+                            <td>{{year}}</td>
+                            <td>{{studentType}}</td>
+                            <td>{{batch}}</td>
+                            <td>{{maxScore}}</td>
+                            <td>{{minScore}}</td>
+                            <td>{{averageScore}}</td>
+                            <td class="text-muted">{{provinceLine}}</td>
+                            <td><button type="button" class="btn btn-outline-primary btn-sm" action="add" label="{{label}}">添加到目标</button></td>
+                        </tr>
+                    {{/each}}
+                    {{#each universityScore}}
+                        <tr>
+                            {{#if isFirstLine}}
+                                <td rowspan="{{../itemCount}}">
+                                    {{../universityName}}<br>
+                                    {{#if ../is985}}
+                                        <span class="badge badge-secondary">985</span>
+                                    {{/if}}
+                                    {{#if ../is211}}
+                                        <span class="badge badge-secondary">211</span>
+                                    {{/if}}
+                                </td>
+                            {{/if}}
+                            <td class="text-info">大学录取线</td>
+                            <td>{{year}}</td>
+                            <td>{{studentType}}</td>
+                            <td>{{batch}}</td>
+                            <td>{{maxScore}}</td>
+                            <td>{{minScore}}</td>
+                            <td>{{averageScore}}</td>
+                            <td class="text-muted">{{provinceLine}}</td>
+                            <td><button type="button" class="btn btn-outline-primary btn-sm" action="add" label="{{label}}">添加到目标</button></td>
+                        </tr>
+                    {{/each}}
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+    {{/if}}
+    {{#if isShowEmpty}}
+        <p>未找到数据</p>
+    {{/if}}
+</main>
+{{> footer}}
+
+{{#section 'script'}}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#majorClass').change(function () {
+                $("#majorSubClass").val("");
+                $('form').submit();
+            });
+            $('#majorSubClass').change(function () {
+                $('form').submit();
+            });
+            $('#universityLoc').change(function () {
+                $('form').submit();
+            });
+            $('#studentLocation').change(function () {
+                $('form').submit();
+            });
+
+            $('table button').click(function () {
+                var action = $(this).attr('action');
+                var label = $(this).attr('label');
+                $.ajax({
+                    url: '/changeGoal', cache: false, data: {action: action, label: label}, success: function (result) {
+                        if (result != 'error') {
+                            if (action === 'add') {
+                                $("[label='" + label + "']").text('目标中删除');
+                                $("[label='" + label + "']").removeClass('btn-outline-primary');
+                                $("[label='" + label + "']").addClass('btn-outline-danger');
+                                $("[label='" + label + "']").attr('action', 'del');
+                            } else if (action === 'del') {
+                                $("[label='" + label + "']").text('添加到目标');
+                                $("[label='" + label + "']").addClass('btn-outline-primary');
+                                $("[label='" + label + "']").removeClass('btn-outline-danger');
+                                $("[label='" + label + "']").attr('action', 'add');
+                            }
+                            if (result === '0') {
+                                $('#target').text('未添加目标');
+                            } else {
+                                $('#target').html('已添加 <span class="text-primary font-weight-bold">' + result + '</span> 个目标');
+                            }
+                        }
+                    }
+                })
+            });
+        });
+    </script>
+{{/section}}

@@ -17,3 +17,7 @@ body {
 .footer {
     background-color: #f5f5f5;
 }
+
+.font-normal-size {
+    font-size: 100%;
+}
