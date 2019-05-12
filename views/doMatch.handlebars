@@ -13,13 +13,23 @@
     <form>
         <div class="form-group row">
             <div class="col-auto col-form-label-sm">
-            {{#if goal.items}}
-                <label id="target">已添加 <span class="text-primary font-weight-bold">{{goal.items.length}}</span> 个目标</label>
-            {{/if}}
-            {{#unless goal.items}}
-                <label id="target">未添加目标</label>
-            {{/unless}}
-                <a href="/setGoal" class="ml-2">去设置目标 &gt;</a>
+                {{#if goal.items}}
+                    <label id="target">已添加 <span class="text-primary font-weight-bold">{{goal.items.length}}</span> 个目标</label>
+                    (
+                    {{#if goal.type1}}
+                        <label>文科:{{goal.type1}}</label>
+                    {{/if}}
+                    {{#if goal.type2}}
+                        <label>理科:{{goal.type2}}</label>
+                    {{/if}}
+                    {{#if goal.type3}}
+                        <label>综合:{{goal.type3}}</label>
+                    {{/if}}
+                    |
+                    高校目标:{{universityGoalSize}}
+                    专业目标:{{majorGoalSize}}
+                    )
+                {{/if}}
             </div>
         </div>
         <div class="form-group row">
@@ -43,8 +53,77 @@
                     {{/each}}
                 </select>
             </div>
+            <div class="col-auto">
+                <label for="score" class="col-form-label-sm">高考分数</label>
+            </div>
+            <div class="input-group-sm">
+                <input type="number" class="form-control mx-sm-3" placeholder="我的高考分数：600">
+            </div>
         </div>
-        <button id="submitBtn" type="submit" class="btn btn-primary mb-1">做匹配</button>
+        <div class="d-flex justify-content-between">
+            {{#if goal.items}}
+                <button id="submitBtn" type="submit" class="btn btn-primary mb-1">做匹配</button>
+            {{/if}}
+            {{#unless goal.items}}
+                <label id="target">未添加目标</label>
+            {{/unless}}
+            <div>
+                <a href="/setGoal" class="ml-2">去设置目标 &gt;</a>
+                TODO
+            </div>
+        </div>
     </form>
+    <hr>
+    {{#if goal.items}}
+        {{#if goalList}}
+            <div class="table-responsive-md">
+                <table class="table table-bordered table-hover">
+                    <caption>共匹配高校目标{{matchedUniversityGoalSize}}个，专业目标{{matchedMajorGoalSize}}个</caption>
+                    <thead class="thead-light">
+                    <tr>
+                        <th>高校名称</th>
+                        <th>专业名称</th>
+                        <th>年份</th>
+                        <th>文理科</th>
+                        <th>批次</th>
+                        <th>录取最高分</th>
+                        <th>录取最低分</th>
+                        <th>录取平均分</th>
+                        <th>省控线</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#each goalList}}
+                        {{#if isFirstLine}}
+                            <tr class="table-info">
+                        {{/if}}
+                        {{#unless isFirstLine}}
+                            <tr class="text-muted">
+                        {{/unless}}
+                            <td>{{universityName}}</td>
+                        {{#if isMajorGoal}}
+                                <td>{{majorName}}</td>
+                        {{/if}}
+                        {{#unless isMajorGoal}}
+                                <td class="text-info">大学录取线</td>
+                        {{/unless}}
+                            <td>{{year}}</td>
+                            <td>{{studentType}}</td>
+                            <td>{{batch}}</td>
+                            <td>{{maxScore}}</td>
+                            <td {{#if isFirstLine}}class="text-primary"{{/if}}>{{minScore}}</td>
+                            <td>{{averageScore}}</td>
+                            <td class="text-muted">{{provinceLine}}</td>
+                        </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        {{/if}}
+        {{#if isShowEmpty}}
+            <p>未找到匹配目标数据，</p>
+        {{/if}}
+    {{/if}}
+
 </main>
 {{> footer}}

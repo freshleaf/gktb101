@@ -92,6 +92,14 @@ exports.setGoal = function (req, res) {
     var i, length = 0;
     var temp = {};
 
+    if (!req.session.usersetting) {
+        req.session.usersetting = {};
+        req.session.usersetting.sl = -1;
+    }
+    if (req.query.sl) {
+        req.session.usersetting.sl = req.query.sl;
+    }
+
     var locations = data.getLocations();
     var studentLocs = [];
     var universityLocs = [];
@@ -104,7 +112,7 @@ exports.setGoal = function (req, res) {
         temp = {};
         temp.name = location.name;
         temp.code = location.code;
-        if (temp.code == req.query.sl) {
+        if (temp.code == req.session.usersetting.sl) {
             temp.selected = ' selected';
         } else {
             temp.selected = '';
@@ -305,6 +313,7 @@ exports.setGoal = function (req, res) {
 
 exports.changeGoal = function (req, res) {
     var item;
+    var i;
     if (req.query.label) {
         item = req.query.label;
     } else {
@@ -328,6 +337,21 @@ exports.changeGoal = function (req, res) {
             req.session.goal.items.splice(i, 1);
         }
     }
+    req.session.goal.type1 = 0;
+    req.session.goal.type2 = 0;
+    req.session.goal.type3 = 0;
+    for (i = 0; i < req.session.goal.items.length; i++) {
+        item = req.session.goal.items[i];
+        if (item.indexOf('文科') >= 0) {
+            req.session.goal.type1 = req.session.goal.type1 + 1;
+        }
+        if (item.indexOf('理科') >= 0) {
+            req.session.goal.type2 = req.session.goal.type2 + 1;
+        }
+        if (item.indexOf('综合') >= 0) {
+            req.session.goal.type3 = req.session.goal.type3 + 1;
+        }
+    }
     res.send(req.session.goal.items.length.toString());
 };
 
@@ -336,6 +360,9 @@ exports.resetGoal = function (req, res) {
         if (req.session.goal.items) {
             req.session.goal = {};
             req.session.goal.items = [];
+            req.session.goal.type1 = 0;
+            req.session.goal.type2 = 0;
+            req.session.goal.type3 = 0;
             res.send('refresh');
             return;
         }
@@ -345,9 +372,25 @@ exports.resetGoal = function (req, res) {
 
 
 exports.doMatch = function (req, res) {
+
+    console.log(req.session.goal);
+
     var studentLocs = [];
-    var i;
+    var i, j;
     var temp;
+
+    if (!req.session.usersetting) {
+        req.session.usersetting = {};
+        req.session.usersetting.sl = -1;
+        req.session.usersetting.type = 0;
+    }
+    if (req.query.sl) {
+        req.session.usersetting.sl = req.query.sl;
+    }
+    if (req.query.type || req.query.type == 0) {
+        req.session.usersetting.type = req.query.type;
+    }
+
     var locations = data.getLocations();
     var length = 0;
     if (locations) {
@@ -358,7 +401,7 @@ exports.doMatch = function (req, res) {
         temp = {};
         temp.name = location.name;
         temp.code = location.code;
-        if (temp.code == req.query.sl) {
+        if (temp.code == req.session.usersetting.sl) {
             temp.selected = ' selected';
         } else {
             temp.selected = '';
@@ -368,14 +411,127 @@ exports.doMatch = function (req, res) {
     var types = data.getStudentTypes();
     for (i = 0; i < types.length; i++) {
         temp = types[i];
-        if (temp.code == req.query.type) {
+        if (temp.code == req.session.usersetting.type) {
             temp.selected = ' selected';
         } else {
             temp.selected = '';
         }
     }
 
+    var goalMajors = [];
+    var goalUniversities = [];
+    var type = data.getTypeString(req.query.type);
+    var universityGoalSize = 0;
+    var majorGoalSize = 0;
+    var matchedUniversityGoalSize = 0;
+    var matchedMajorGoalSize = 0;
+    var universityGoalCodeList = [];
+    if (req.session.goal && req.session.goal.items) {
+        for (i = 0; i < req.session.goal.items.length; i++) {
+            var item = req.session.goal.items[i];
+            var parts = item.split('_');
+            var goal = {};
+            if (parts[1] === '0') {
+                // university goal
+                goal.location = req.query.sl;
+                goal.university = parts[0];
+                goal.type = parts[2];
+                universityGoalSize += 1;
+                if (goal.type == type || type === '不限') {
+                    matchedUniversityGoalSize += 1;
+                    goalUniversities.push(goal);
+                    universityGoalCodeList.push(goal.university);
+                }
+            } else {
+                // major goal
+                goal.location = req.query.sl;
+                goal.university = parts[0];
+                goal.major = parts[1];
+                goal.type = parts[2];
+                majorGoalSize += 1;
+                if (goal.type == type || type === '不限') {
+                    matchedMajorGoalSize += 1;
+                    goalMajors.push(goal);
+                }
+            }
+        }
+    }
+
+    var isShowEmptyResult = false;
+    var goalList = [];
+
+    if (req.query.sl && req.query.type) {
+        var goalMajorList;
+        var goalTemp;
+        for (i = 0; i < goalMajors.length; i++) {
+            temp = goalMajors[i];
+            goalMajorList = data.getMajorGoal(temp.location, temp.university, temp.major, temp.type);
+            console.log(goalMajorList);
+            console.log(temp);
+            for (j = 0; j < goalMajorList.length; j++) {
+                goalTemp = {};
+                goalTemp.isMajorGoal = true;
+                goalTemp.universityName = goalMajorList[j].university_name;
+                goalTemp.year = goalMajorList[j].year;
+                goalTemp.majorName = goalMajorList[j].major_name;
+                goalTemp.studentType = goalMajorList[j].student_type;
+                goalTemp.batch = goalMajorList[j].batch;
+                goalTemp.maxScore = formatScore(goalMajorList[j].max_score);
+                goalTemp.minScore = formatScore(goalMajorList[j].min_score);
+                goalTemp.averageScore = formatScore(goalMajorList[j].average_score);
+                goalTemp.admissionsNumber = goalMajorList[j].admissions_number;
+                goalTemp.provinceLine = formatScore(goalMajorList[j].score_line);
+                if (j == 0) {
+                    goalTemp.isFirstLine = true;
+                }
+                goalList.push(goalTemp);
+            }
+        }
+        var goalUniversityList = data.getUniversityGoal(req.session.usersetting.sl, universityGoalCodeList, type);
+        var lastUniversity, lastType;
+        for (i = 0; i < goalUniversityList.length; i++) {
+            goalTemp = {};
+            goalTemp.isMajorGoal = false;
+            goalTemp.universityName = goalUniversityList[i].university_name;
+            goalTemp.year = goalUniversityList[i].year;
+            goalTemp.studentType = goalUniversityList[i].student_type;
+            goalTemp.batch = goalUniversityList[i].batch;
+            goalTemp.maxScore = formatScore(goalUniversityList[i].max_score);
+            goalTemp.minScore = formatScore(goalUniversityList[i].min_score);
+            goalTemp.averageScore = formatScore(goalUniversityList[i].average_score);
+            goalTemp.admissionsNumber = goalUniversityList[i].admissions_number;
+            goalTemp.provinceLine = formatScore(goalUniversityList[i].score_line);
+            if (lastUniversity != goalTemp.universityName || lastType != goalTemp.studentType) {
+                goalTemp.isFirstLine = true;
+                lastUniversity = goalTemp.universityName;
+                lastType = goalTemp.studentType;
+            }
+            if (type == '不限') {
+                for (j = 0; j < goalUniversities.length; j++) {
+                    if (goalUniversityList[i].university_code == goalUniversities[j].university
+                        && goalTemp.studentType == goalUniversities[j].type) {
+                        goalList.push(goalTemp);
+                        continue;
+                    }
+                }
+            } else {
+                goalList.push(goalTemp);
+            }
+        }
+
+        if (goalList.length == 0) {
+            isShowEmptyResult = true;
+        }
+    }
+
     res.render('doMatch', {
-        location: studentLocs, type: types
+        isShowEmpty: isShowEmptyResult,
+        location: studentLocs,
+        type: types,
+        goalList: goalList,
+        universityGoalSize: universityGoalSize,
+        majorGoalSize: majorGoalSize,
+        matchedUniversityGoalSize: matchedUniversityGoalSize,
+        matchedMajorGoalSize: matchedMajorGoalSize,
     });
 };

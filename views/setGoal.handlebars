@@ -81,7 +81,7 @@
                     <label id="target">未添加目标</label>
                 {{/unless}}
                 <a href="/doMatch" class="ml-2">查看匹配 &gt;</a>
-                <button id="resetGoalBtn" type="button" class="btn btn-outline-danger btn-sm ml-3">清空目标</button>
+                <button id="resetGoalBtn" type="button" class="btn btn-outline-danger btn-sm ml-5" {{#unless goal.items}}disabled{{/unless}}>清空目标</button>
             </div>
         </div>
     </form>
@@ -232,8 +232,10 @@
                             }
                             if (result === '0') {
                                 $('#target').text('未添加目标');
+                                $('#resetGoalBtn').attr("disabled", true);
                             } else {
                                 $('#target').html('已添加 <span class="text-primary font-weight-bold">' + result + '</span> 个目标');
+                                $('#resetGoalBtn').removeAttr("disabled");
                             }
                         }
                     }

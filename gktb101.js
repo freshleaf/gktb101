@@ -31,6 +31,10 @@ app.use(function(req, res, next){
     res.locals.goal = req.session.goal;
     next();
 });
+app.use(function(req, res, next){
+    res.locals.usersetting = req.session.usersetting;
+    next();
+});
 
 // use domains for better error handling
 app.use(function (req, res, next) {
