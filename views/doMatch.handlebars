@@ -57,19 +57,25 @@
                 <label for="score" class="col-form-label-sm">高考分数</label>
             </div>
             <div class="input-group-sm">
-                <input type="number" class="form-control mx-sm-3" placeholder="我的高考分数：600">
+                <input name="inputScore" type="number" class="form-control mx-sm-2 {{#if invalidScore}}is-invalid{{/if}}" placeholder="我的高考分数" {{#if usersetting.inputScore}}value="{{usersetting.inputScore}}"{{/if}} required>
+                <label class="invalid-feedback">请输入合理的高考分数</label>
             </div>
         </div>
+
         <div class="d-flex justify-content-between">
-            {{#if goal.items}}
-                <button id="submitBtn" type="submit" class="btn btn-primary mb-1">做匹配</button>
-            {{/if}}
-            {{#unless goal.items}}
-                <label id="target">未添加目标</label>
-            {{/unless}}
             <div>
-                <a href="/setGoal" class="ml-2">去设置目标 &gt;</a>
-                TODO
+                {{#if goal.items}}
+                    <button id="submitBtn" type="submit" class="btn btn-primary mb-1">做匹配</button>
+                {{/if}}
+                {{#unless goal.items}}
+                    <label id="target">未添加目标</label>
+                {{/unless}}
+            </div>
+            <div>
+                <a href="/setGoal" class="btn btn-outline-primary btn-sm ml-2">跳转到目标设置页面</a>
+                {{#if goalList}}
+                    <button id="showDetails" type="button" class="btn btn-outline-primary btn-sm ml-2">隐藏历史数据</button>
+                {{/if}}
             </div>
         </div>
     </form>
@@ -78,7 +84,7 @@
         {{#if goalList}}
             <div class="table-responsive-md">
                 <table class="table table-bordered table-hover">
-                    <caption>共匹配高校目标{{matchedUniversityGoalSize}}个，专业目标{{matchedMajorGoalSize}}个</caption>
+                    <caption>共匹配高校目标{{matchedUniversityGoalSize}}个，专业目标{{matchedMajorGoalSize}}个。匹配结果仅供参考。</caption>
                     <thead class="thead-light">
                     <tr>
                         <th>高校名称</th>
@@ -127,3 +133,22 @@
 
 </main>
 {{> footer}}
+
+{{#section 'script'}}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#showDetails').click(function () {
+                var text = $(this).text();
+                if (text == '显示历史数据') {
+                    $(this).text('隐藏历史数据');
+                    $(this).attr('action', 'hide');
+                    $('tr.text-muted').removeAttr("hidden");
+                } else if (text == '隐藏历史数据') {
+                    $(this).text('显示历史数据');
+                    $(this).attr('action', 'show');
+                    $('tr.text-muted').attr("hidden", true);
+                }
+            });
+        });
+    </script>
+{{/section}}

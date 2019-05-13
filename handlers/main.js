@@ -2,6 +2,9 @@ var mysql = require('mysql');
 var connection;
 const data = require('../lib/data.js');
 
+// express-mysql-session
+// https://github.com/chill117/express-mysql-session
+
 function openConnection() {
     connection = mysql.createConnection({
         host: 'localhost',
@@ -88,13 +91,20 @@ exports.location_line = function (req, res) {
     closeConnection();
 };
 
+var createSessionSetting = function () {
+    var setting = {};
+    setting.sl = 11; // first item: 北京
+    setting.type = 0;
+    setting.inputScore = 600;
+    return setting;
+};
+
 exports.setGoal = function (req, res) {
     var i, length = 0;
     var temp = {};
 
     if (!req.session.usersetting) {
-        req.session.usersetting = {};
-        req.session.usersetting.sl = -1;
+        req.session.usersetting = createSessionSetting();
     }
     if (req.query.sl) {
         req.session.usersetting.sl = req.query.sl;
@@ -370,19 +380,13 @@ exports.resetGoal = function (req, res) {
     res.send('OK');
 };
 
-
 exports.doMatch = function (req, res) {
-
-    console.log(req.session.goal);
-
     var studentLocs = [];
     var i, j;
     var temp;
 
     if (!req.session.usersetting) {
-        req.session.usersetting = {};
-        req.session.usersetting.sl = -1;
-        req.session.usersetting.type = 0;
+        req.session.usersetting = createSessionSetting();
     }
     if (req.query.sl) {
         req.session.usersetting.sl = req.query.sl;
@@ -417,15 +421,29 @@ exports.doMatch = function (req, res) {
             temp.selected = '';
         }
     }
+    if (req.query.inputScore) {
+        req.session.usersetting.inputScore = req.query.inputScore;
+    }
+    if (!(req.session.usersetting.inputScore > 200 && req.session.usersetting.inputScore < 800)) {
+        // invalid input score
+        res.render('doMatch', {
+            location: studentLocs,
+            type: types,
+            invalidScore: true,
+        });
+        return;
+    }
 
+    // get data
     var goalMajors = [];
     var goalUniversities = [];
-    var type = data.getTypeString(req.query.type);
+    var type = data.getTypeString(req.session.usersetting.type);
     var universityGoalSize = 0;
     var majorGoalSize = 0;
     var matchedUniversityGoalSize = 0;
     var matchedMajorGoalSize = 0;
     var universityGoalCodeList = [];
+
     if (req.session.goal && req.session.goal.items) {
         for (i = 0; i < req.session.goal.items.length; i++) {
             var item = req.session.goal.items[i];
@@ -433,7 +451,7 @@ exports.doMatch = function (req, res) {
             var goal = {};
             if (parts[1] === '0') {
                 // university goal
-                goal.location = req.query.sl;
+                goal.location = req.session.usersetting.sl;
                 goal.university = parts[0];
                 goal.type = parts[2];
                 universityGoalSize += 1;
@@ -444,7 +462,7 @@ exports.doMatch = function (req, res) {
                 }
             } else {
                 // major goal
-                goal.location = req.query.sl;
+                goal.location = req.session.usersetting.sl;
                 goal.university = parts[0];
                 goal.major = parts[1];
                 goal.type = parts[2];
@@ -458,69 +476,122 @@ exports.doMatch = function (req, res) {
     }
 
     var isShowEmptyResult = false;
-    var goalList = [];
-
-    if (req.query.sl && req.query.type) {
-        var goalMajorList;
-        var goalTemp;
-        for (i = 0; i < goalMajors.length; i++) {
-            temp = goalMajors[i];
-            goalMajorList = data.getMajorGoal(temp.location, temp.university, temp.major, temp.type);
-            console.log(goalMajorList);
-            console.log(temp);
-            for (j = 0; j < goalMajorList.length; j++) {
-                goalTemp = {};
-                goalTemp.isMajorGoal = true;
-                goalTemp.universityName = goalMajorList[j].university_name;
-                goalTemp.year = goalMajorList[j].year;
-                goalTemp.majorName = goalMajorList[j].major_name;
-                goalTemp.studentType = goalMajorList[j].student_type;
-                goalTemp.batch = goalMajorList[j].batch;
-                goalTemp.maxScore = formatScore(goalMajorList[j].max_score);
-                goalTemp.minScore = formatScore(goalMajorList[j].min_score);
-                goalTemp.averageScore = formatScore(goalMajorList[j].average_score);
-                goalTemp.admissionsNumber = goalMajorList[j].admissions_number;
-                goalTemp.provinceLine = formatScore(goalMajorList[j].score_line);
-                if (j == 0) {
-                    goalTemp.isFirstLine = true;
-                }
-                goalList.push(goalTemp);
-            }
-        }
-        var goalUniversityList = data.getUniversityGoal(req.session.usersetting.sl, universityGoalCodeList, type);
-        var lastUniversity, lastType;
-        for (i = 0; i < goalUniversityList.length; i++) {
+    var tempList = [];
+    var goalMajorList;
+    var goalTemp;
+    for (i = 0; i < goalMajors.length; i++) {
+        temp = goalMajors[i];
+        goalMajorList = data.getMajorGoal(temp.location, temp.university, temp.major, temp.type);
+        for (j = 0; j < goalMajorList.length; j++) {
             goalTemp = {};
-            goalTemp.isMajorGoal = false;
-            goalTemp.universityName = goalUniversityList[i].university_name;
-            goalTemp.year = goalUniversityList[i].year;
-            goalTemp.studentType = goalUniversityList[i].student_type;
-            goalTemp.batch = goalUniversityList[i].batch;
-            goalTemp.maxScore = formatScore(goalUniversityList[i].max_score);
-            goalTemp.minScore = formatScore(goalUniversityList[i].min_score);
-            goalTemp.averageScore = formatScore(goalUniversityList[i].average_score);
-            goalTemp.admissionsNumber = goalUniversityList[i].admissions_number;
-            goalTemp.provinceLine = formatScore(goalUniversityList[i].score_line);
-            if (lastUniversity != goalTemp.universityName || lastType != goalTemp.studentType) {
+            goalTemp.isMajorGoal = true;
+            goalTemp.universityName = goalMajorList[j].university_name;
+            goalTemp.year = goalMajorList[j].year;
+            goalTemp.majorName = goalMajorList[j].major_name;
+            goalTemp.studentType = goalMajorList[j].student_type;
+            goalTemp.batch = goalMajorList[j].batch;
+            goalTemp.maxScore = formatScore(goalMajorList[j].max_score);
+            goalTemp.minScore = formatScore(goalMajorList[j].min_score);
+            goalTemp.averageScore = formatScore(goalMajorList[j].average_score);
+            goalTemp.admissionsNumber = goalMajorList[j].admissions_number;
+            goalTemp.provinceLine = formatScore(goalMajorList[j].score_line);
+            if (j == 0) {
                 goalTemp.isFirstLine = true;
-                lastUniversity = goalTemp.universityName;
-                lastType = goalTemp.studentType;
-            }
-            if (type == '不限') {
-                for (j = 0; j < goalUniversities.length; j++) {
-                    if (goalUniversityList[i].university_code == goalUniversities[j].university
-                        && goalTemp.studentType == goalUniversities[j].type) {
-                        goalList.push(goalTemp);
-                        continue;
-                    }
-                }
+                goalTemp.historyRecords = [];
+                tempList.push(goalTemp);
             } else {
-                goalList.push(goalTemp);
+                tempList[i].historyRecords.push(goalTemp);
             }
         }
+    }
+    var goalUniversityList = data.getUniversityGoal(req.session.usersetting.sl, universityGoalCodeList, type);
+    var lastUniversity, lastType;
+    for (i = 0; i < goalUniversityList.length; i++) {
+        goalTemp = {};
+        goalTemp.isMajorGoal = false;
+        goalTemp.universityName = goalUniversityList[i].university_name;
+        goalTemp.year = goalUniversityList[i].year;
+        goalTemp.studentType = goalUniversityList[i].student_type;
+        goalTemp.batch = goalUniversityList[i].batch;
+        goalTemp.maxScore = formatScore(goalUniversityList[i].max_score);
+        goalTemp.minScore = formatScore(goalUniversityList[i].min_score);
+        goalTemp.averageScore = formatScore(goalUniversityList[i].average_score);
+        goalTemp.admissionsNumber = goalUniversityList[i].admissions_number;
+        goalTemp.provinceLine = formatScore(goalUniversityList[i].score_line);
+        if (type == '不限') {
+            var isHit = false;
+            // when type = '不限', got more records from db, remove them
+            for (j = 0; j < goalUniversities.length; j++) {
+                if (goalUniversityList[i].university_code == goalUniversities[j].university
+                    && goalTemp.studentType == goalUniversities[j].type) {
+                    isHit = true;
+                    continue;
+                }
+            }
+            if (!isHit) {
+                continue;
+            }
+        }
+        if (lastUniversity != goalTemp.universityName || lastType != goalTemp.studentType) {
+            goalTemp.isFirstLine = true;
+            goalTemp.historyRecords = [];
+            tempList.push(goalTemp);
+            lastUniversity = goalTemp.universityName;
+            lastType = goalTemp.studentType;
+            continue;
+        }
+        tempList[tempList.length - 1].historyRecords.push(goalTemp);
+    }
+    if (tempList.length == 0) {
+        isShowEmptyResult = true;
+    }
 
-        if (goalList.length == 0) {
-            isShowEmptyResult = true;
+    // calculate possibility and re-order
+    // NOTE: this is the very simple method, just compare the latest min score with input score
+    // target score:
+    // 1. = min score (if min score not null)
+    // 2. = average score x 2 = max score (if max, average score not null)
+    // 3. = max score (if max score not null); = average score (if average score not null)
+    var inputScore = req.session.usersetting.inputScore;
+    for (i = 0; i < tempList.length; i++) {
+        goalTemp = tempList[i];
+        goalTemp.tmpScore = goalTemp.minScore;
+        if (goalTemp.tmpScore == '--') {
+            if (goalTemp.maxScore == '--') {
+                goalTemp.tmpScore = goalTemp.averageScore;
+            } else if (goalTemp.averageScore == '--') {
+                goalTemp.tmpScore = goalTemp.maxScore;
+            } else {
+                goalTemp.tmpScore = goalTemp.averageScore * 2 - goalTemp.maxScore;
+            }
+        }
+        goalTemp.diff = inputScore - goalTemp.tmpScore;
+    }
+    tempList.sort(function (m, n) {
+        return n.diff - m.diff;
+    });
+
+    var sortedGoalList = [];
+    for (i = 0; i < tempList.length; i++) {
+        goalTemp = tempList[i];
+        temp = {};
+        temp.isMajorGoal = goalTemp.isMajorGoal;
+        temp.universityName = goalTemp.universityName;
+        temp.majorName = goalTemp.majorName;
+        temp.year = goalTemp.year;
+        temp.studentType = goalTemp.studentType;
+        temp.batch = goalTemp.batch;
+        temp.maxScore = goalTemp.maxScore;
+        temp.minScore = goalTemp.minScore;
+        temp.averageScore = goalTemp.averageScore;
+        temp.admissionsNumber = goalTemp.admissionsNumber;
+        temp.provinceLine = goalTemp.provinceLine;
+        temp.isFirstLine = goalTemp.isFirstLine;
+        sortedGoalList.push(temp);
+        if (goalTemp.historyRecords && goalTemp.historyRecords.length > 0) {
+            for (j = 0; j < goalTemp.historyRecords.length; j++) {
+                sortedGoalList.push(goalTemp.historyRecords[j]);
+            }
         }
     }
 
@@ -528,7 +599,8 @@ exports.doMatch = function (req, res) {
         isShowEmpty: isShowEmptyResult,
         location: studentLocs,
         type: types,
-        goalList: goalList,
+        invalidScore: false,
+        goalList: sortedGoalList,
         universityGoalSize: universityGoalSize,
         majorGoalSize: majorGoalSize,
         matchedUniversityGoalSize: matchedUniversityGoalSize,
