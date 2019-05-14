@@ -6,8 +6,161 @@
 
 {{> header}}
 <main role="main" class="container">
-    <h1>Home</h1>
-    aaa
+    <div class="row">
+        <div class="col-lg-9">
+            <h1 class="mt-4 text-center">高考填报 101</h1>
+            <p class="lead mb-3 text-center">让数据说话，助力高考填报</p>
+
+            <h1 class="display-4 text-center text-muted">看趋势 > 定目标 > 做匹配</h1>
+            <p>
+                将历年高考地区分数线、高校分数线、专业分数线汇总，并用图表的方式展示整体趋势。让人人都能看懂数据，不遗漏任何志愿选择，评估录取可能性。辅助考生和家长筛选志愿，确定填报策略。
+            </p>
+
+            <hr>
+            <h4 class="mt-4">看趋势<span class="font-weight-light">（功能开发中）</span></h4>
+            <p>将历年高考分数线用图表的方式展现。</p>
+
+            <div class="d-flex justify-content-between mt-4">
+                <h4>定目标</h4>
+                <a class="text-muted" href="/setGoal">跳转到页面 >></a>
+            </div>
+            <hr class="mt-0">
+            <div>确定志愿目标。展示范围内志愿的历年招生分数，结合考生自身情况，缩小目标志愿范围。</div>
+            <label class="text-muted">示例</label>
+            <div class="text-right mb-2">
+                <label class="small">已添加 <span class="text-primary font-weight-bold">2</span> 个目标</label>
+                <button type="button" class="btn btn-outline-danger btn-sm ml-2">清空目标</button>
+            </div>
+            <div class="table-responsive-md small">
+                <table class="table table-bordered table-hover">
+                    <caption>985/211高校 + 本科一批 + 专业及高校招生分数线 (共收录约60万条数据）</caption>
+                    <thead class="thead-light">
+                    <tr>
+                        <th>高校名称</th>
+                        <th>专业名称</th>
+                        <th>年份</th>
+                        <th>文理科</th>
+                        <th>批次</th>
+                        <th>录取最高分</th>
+                        <th>录取最低分</th>
+                        <th>录取平均分</th>
+                        <th>省控线</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td rowspan="3">北京大学<br><span class="badge badge-secondary">985</span></td>
+                        <td>法学</td>
+                        <td>2017</td>
+                        <td>文科</td>
+                        <td>本科一批</td>
+                        <td>649</td>
+                        <td>--</td>
+                        <td>649</td>
+                        <td class="text-muted">525</td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger btn-sm">目标中删除</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-info">大学录取线</td>
+                        <td>2018</td>
+                        <td>文科</td>
+                        <td>本科一批</td>
+                        <td>--</td>
+                        <td>634</td>
+                        <td>--</td>
+                        <td class="text-muted">524</td>
+                        <td>
+                            <button type="button" class="btn btn-outline-danger btn-sm">目标中删除</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-info">大学录取线</td>
+                        <td>2018</td>
+                        <td>理科</td>
+                        <td>本科一批</td>
+                        <td>--</td>
+                        <td>695</td>
+                        <td>--</td>
+                        <td class="text-muted">524</td>
+                        <td>
+                            <button type="button" class="btn btn-outline-primary btn-sm">添加到目标</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <h4>做匹配</h4>
+                <a class="text-muted" href="/doMatch">跳转到页面 >></a>
+            </div>
+            <hr class="mt-0">
+            <div>形成填报策略。评估并预测目标志愿的录取可能性，进一步匹配确定要填报的志愿。</div>
+            <label class="text-muted">示例</label>
+            <div class="text-right mb-2">
+                <button type="button" class="btn btn-outline-primary btn-sm ml-2">显示历史数据</button>
+            </div>
+            <div class="table-responsive-md small">
+                <table class="table table-bordered table-hover">
+                    <caption>共匹配高校目标1个，专业目标1个。匹配结果仅供参考。</caption>
+                    <thead class="thead-light">
+                    <tr>
+                        <th>高校名称</th>
+                        <th>专业名称</th>
+                        <th>年份</th>
+                        <th>文理科</th>
+                        <th>批次</th>
+                        <th>录取最高分</th>
+                        <th>录取最低分</th>
+                        <th>录取平均分</th>
+                        <th>省控线</th>
+                        <th>匹配结果</th>
+                    </tr>
+                    </thead>
+                    <tr>
+                        <td class="table-info">北京大学</td>
+                        <td class="text-info table-info">大学录取线</td>
+                        <td class="table-info">2018</td>
+                        <td class="table-info">文科</td>
+                        <td class="table-info">本科一批</td>
+                        <td class="table-info">--</td>
+                        <td class="text-primary table-info">634</td>
+                        <td class="table-info">--</td>
+                        <td class="text-muted table-info">524</td>
+                        <td class="table-primary">稳妥</td>
+                    </tr>
+                    <tr>
+                        <td class="table-info">北京大学</td>
+                        <td class="table-info">法学</td>
+                        <td class="table-info">2017</td>
+                        <td class="table-info">文科</td>
+                        <td class="table-info">本科一批</td>
+                        <td class="table-info">649</td>
+                        <td class="text-primary table-info">--</td>
+                        <td class="table-info">649</td>
+                        <td class="text-muted table-info">525</td>
+                        <td class="table-warning">冲刺</td>
+                    </tr>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <h5 class="mt-4">最近更新</h5>
+            <hr>
+            <ul>
+                <li class="text-muted">分数线整体分析开发中</li>
+                <li>分数线整合查询功能完成</li>
+            </ul>
+            <h5 class="mt-5">联系作者</h5>
+            <hr>
+            <a href="mailto:freshleaf@gmail.com">freshleaf@gmail.com</a>
+        </div>
+    </div>
 </main>
 {{> footer}}
 

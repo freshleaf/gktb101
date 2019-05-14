@@ -31,29 +31,6 @@ exports.home = function (req, res) {
     res.render('home');
 };
 
-exports.test = function (req, res) {
-    openConnection();
-    var sql = 'SELECT * FROM location ORDER BY location_order';
-
-    connection.query(sql, function (err, results) {
-        if (err) {
-            console.log('[SELECT ERROR] - ', err.message);
-        }
-        var locationList = [];
-        if (results) {
-            for (var i = 0; i < results.length; i++) {
-                var location = {};
-                location.name = results[i].location_name;
-                location.code = results[i].location_code;
-                location.order = results[i].location_order;
-                locationList.push(location);
-            }
-        }
-        res.render('test', {location: locationList, myLocations: data.getLocations()});
-    });
-    closeConnection();
-};
-
 exports.location_line = function (req, res) {
     var code = req.query.location;
     var whereCondition = null;
@@ -565,7 +542,31 @@ exports.doMatch = function (req, res) {
                 goalTemp.tmpScore = goalTemp.averageScore * 2 - goalTemp.maxScore;
             }
         }
+        // set possibility, 4 level: 1）冲刺 2）稳妥 3）保底 4）高风险
+        var majorScoreLevel = [30, 10, -10];
+        var univeristyScoreLevel = [40, 20, -5];
         goalTemp.diff = inputScore - goalTemp.tmpScore;
+        if (goalTemp.isMajorGoal) {
+            if (goalTemp.diff > majorScoreLevel[0]) {
+                goalTemp.isSafe = true; // 保底
+            } else if (goalTemp.diff > majorScoreLevel[1]) {
+                goalTemp.isSteady = true; // 稳妥
+            } else if (goalTemp.diff > majorScoreLevel[2]) {
+                goalTemp.isRisky = true; // 冲刺
+            } else {
+                goalTemp.isOut = true; // 高风险
+            }
+        } else {
+            if (goalTemp.diff > univeristyScoreLevel[0]) {
+                goalTemp.isSafe = true; // 保底
+            } else if (goalTemp.diff > univeristyScoreLevel[1]) {
+                goalTemp.isSteady = true; // 稳妥
+            } else if (goalTemp.diff > univeristyScoreLevel[2]) {
+                goalTemp.isRisky = true; // 冲刺
+            } else {
+                goalTemp.isOut = true; // 高风险
+            }
+        }
     }
     tempList.sort(function (m, n) {
         return n.diff - m.diff;
@@ -587,6 +588,10 @@ exports.doMatch = function (req, res) {
         temp.admissionsNumber = goalTemp.admissionsNumber;
         temp.provinceLine = goalTemp.provinceLine;
         temp.isFirstLine = goalTemp.isFirstLine;
+        temp.isSafe = goalTemp.isSafe;
+        temp.isSteady = goalTemp.isSteady;
+        temp.isRisky = goalTemp.isRisky;
+        temp.isOut = goalTemp.isOut;
         sortedGoalList.push(temp);
         if (goalTemp.historyRecords && goalTemp.historyRecords.length > 0) {
             for (j = 0; j < goalTemp.historyRecords.length; j++) {

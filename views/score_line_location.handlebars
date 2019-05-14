@@ -4,16 +4,21 @@
     <meta name="keywords" content="查看历年高考地区批次分数线">
 {{/section}}
 
-<form>
-    <select name="location">
-        <option value="">不限</option>
-        {{#each location}}
-            <option value="{{code}}">{{name}}</option>
-        {{/each}}
-    </select>
-    <input type="submit" />
+{{> header}}
+<main role="main" class="container">
+    <form class="form-inline mt-4">
+        <select name="location" class="custom-select mr-sm-2">
+            <option value="">不限</option>
+            {{#each location}}
+                <option value="{{code}}">{{name}}</option>
+            {{/each}}
+        </select>
+        <!--<input type="submit"/>-->
+        <button type="submit" class="btn btn-primary">查询省控线</button>
+    </form>
     <br>
-    <table border="1">
+    <table class="table table-bordered table-hover">
+        <thead class="thead-light">
         <tr>
             <th></th>
             <th>年份</th>
@@ -22,6 +27,8 @@
             <th>批次</th>
             <th>分数线</th>
         </tr>
+        </thead>
+        <tbody>
         {{#each scoreline}}
             <tr>
                 <td>{{no}}</td>
@@ -32,5 +39,7 @@
                 <td>{{socre}}</td>
             </tr>
         {{/each}}
+        </tbody>
     </table>
-</form>
+</main>
+{{> footer}}

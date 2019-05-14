@@ -6,7 +6,6 @@ module.exports = function (app) {
         res.send('Hello world');
     });
     app.get('/', main.home);
-    app.get('/test', main.test);
     app.get('/scoreline/location', main.location_line);
     app.get('/setGoal', main.setGoal);
     app.get('/doMatch', main.doMatch);

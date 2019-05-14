@@ -5,10 +5,14 @@
 {{/section}}
 
 {{> header}}
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">首页</a></li>
-    <li class="breadcrumb-item active">做匹配</li>
-</ol>
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">首页</a></li>
+            <li class="breadcrumb-item active">做匹配</li>
+        </ol>
+    </nav>
+</div>
 <main role="main" class="container">
     <form>
         <div class="form-group row">
@@ -74,7 +78,7 @@
             <div>
                 <a href="/setGoal" class="btn btn-outline-primary btn-sm ml-2">跳转到目标设置页面</a>
                 {{#if goalList}}
-                    <button id="showDetails" type="button" class="btn btn-outline-primary btn-sm ml-2">隐藏历史数据</button>
+                    <button id="showDetails" type="button" class="btn btn-outline-primary btn-sm ml-2">显示历史数据</button>
                 {{/if}}
             </div>
         </div>
@@ -96,30 +100,41 @@
                         <th>录取最低分</th>
                         <th>录取平均分</th>
                         <th>省控线</th>
+                        <th>匹配结果</th>
                     </tr>
                     </thead>
                     <tbody>
                     {{#each goalList}}
-                        {{#if isFirstLine}}
-                            <tr class="table-info">
-                        {{/if}}
-                        {{#unless isFirstLine}}
-                            <tr class="text-muted">
-                        {{/unless}}
-                            <td>{{universityName}}</td>
+                        <tr {{#unless isFirstLine}}class="text-muted" hidden{{/unless}}>
+                            <td {{#if isFirstLine}}class="table-info"{{/if}}{{#unless isFirstLine}}class="text-muted"{{/unless}}>{{universityName}}</td>
                         {{#if isMajorGoal}}
-                                <td>{{majorName}}</td>
+                                <td {{#if isFirstLine}}class="table-info"{{/if}}{{#unless isFirstLine}}class="text-muted"{{/unless}}>{{majorName}}</td>
                         {{/if}}
                         {{#unless isMajorGoal}}
-                                <td class="text-info">大学录取线</td>
+                                <td class="text-info {{#if isFirstLine}}table-info{{/if}}{{#unless isFirstLine}}text-muted{{/unless}}">大学录取线</td>
                         {{/unless}}
-                            <td>{{year}}</td>
-                            <td>{{studentType}}</td>
-                            <td>{{batch}}</td>
-                            <td>{{maxScore}}</td>
-                            <td {{#if isFirstLine}}class="text-primary"{{/if}}>{{minScore}}</td>
-                            <td>{{averageScore}}</td>
-                            <td class="text-muted">{{provinceLine}}</td>
+                            <td {{#if isFirstLine}}class="table-info"{{/if}}{{#unless isFirstLine}}class="text-muted"{{/unless}}>{{year}}</td>
+                            <td {{#if isFirstLine}}class="table-info"{{/if}}{{#unless isFirstLine}}class="text-muted"{{/unless}}>{{studentType}}</td>
+                            <td {{#if isFirstLine}}class="table-info"{{/if}}{{#unless isFirstLine}}class="text-muted"{{/unless}}>{{batch}}</td>
+                            <td {{#if isFirstLine}}class="table-info"{{/if}}{{#unless isFirstLine}}class="text-muted"{{/unless}}>{{maxScore}}</td>
+                            <td {{#if isFirstLine}}class="text-primary table-info"{{/if}}{{#unless isFirstLine}}class="text-muted"{{/unless}}>{{minScore}}</td>
+                            <td {{#if isFirstLine}}class="table-info"{{/if}}{{#unless isFirstLine}}class="text-muted"{{/unless}}>{{averageScore}}</td>
+                            <td class="text-muted {{#if isFirstLine}}table-info{{/if}}">{{provinceLine}}</td>
+                        {{#if isSafe}}
+                                <td class="table-success">保底</td>
+                        {{/if}}
+                        {{#if isSteady}}
+                                <td class="table-primary">稳妥</td>
+                        {{/if}}
+                        {{#if isRisky}}
+                                <td class="table-warning">冲刺</td>
+                        {{/if}}
+                        {{#if isOut}}
+                                <td class="table-secondary text-muted">高风险</td>
+                        {{/if}}
+                        {{#unless isFirstLine}}
+                                <td></td>
+                        {{/unless}}
                         </tr>
                     {{/each}}
                     </tbody>
@@ -141,11 +156,9 @@
                 var text = $(this).text();
                 if (text == '显示历史数据') {
                     $(this).text('隐藏历史数据');
-                    $(this).attr('action', 'hide');
                     $('tr.text-muted').removeAttr("hidden");
                 } else if (text == '隐藏历史数据') {
                     $(this).text('显示历史数据');
-                    $(this).attr('action', 'show');
                     $('tr.text-muted').attr("hidden", true);
                 }
             });
