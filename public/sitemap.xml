@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset>
+    <url>
+        <loc>www.gktb101.com/</loc>
+        <lastmod>2019-05-16</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>http://www.gktb101.com/setGoal</loc>
+        <lastmod>2019-05-16</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>http://www.gktb101.com/doMatch</loc>
+        <lastmod>2019-05-16</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>http://www.gktb101.com/about</loc>
+        <lastmod>2019-05-16</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>http://www.gktb101.com/feedback</loc>
+        <lastmod>2019-05-16</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.1</priority>
+    </url>
+    <url>
+        <loc>http://www.gktb101.com/service</loc>
+        <lastmod>2019-05-16</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.1</priority>
+    </url>
+</urlset>
