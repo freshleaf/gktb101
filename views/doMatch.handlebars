@@ -15,6 +15,9 @@
 </div>
 <main role="main" class="container">
     <form>
+        <p>
+            将高考意向学校、意向专业添加为目标，和填入的高考分数做匹配，得到录取概率供参考。
+        </p>
         <div class="form-group row">
             <div class="col-auto col-form-label-sm">
                 {{#if goal.items}}
@@ -61,7 +64,7 @@
                 <label for="score" class="col-form-label-sm">高考分数</label>
             </div>
             <div class="input-group-sm">
-                <input name="inputScore" type="number" class="form-control mx-sm-2 {{#if invalidScore}}is-invalid{{/if}}" placeholder="我的高考分数" {{#if usersetting.inputScore}}value="{{usersetting.inputScore}}"{{/if}} required>
+                <input name="inputScore" type="number" class="text-danger form-control mx-sm-2 {{#if invalidScore}}is-invalid{{/if}}" placeholder="我的高考分数" {{#if usersetting.inputScore}}value="{{usersetting.inputScore}}"{{/if}} required>
                 <label class="invalid-feedback">请输入合理的高考分数</label>
             </div>
         </div>

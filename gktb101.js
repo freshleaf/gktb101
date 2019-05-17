@@ -1,6 +1,8 @@
 var express = require('express');
 var app = express();
 var credentials = require('./credentials.js');
+var session = require('express-session');
+var MySQLStore = require('express-mysql-session')(session);
 
 var handlebars = require('express-handlebars').create({
     defaultLayout: 'main',
@@ -18,15 +20,34 @@ app.set('view engine', 'handlebars');
 app.set('port', process.env.PORT || 80);
 // cookie
 app.use(require('cookie-parser')(credentials.cookieSecret));
-app.use(require('express-session')({
+// session
+var options = {
+    host: credentials.db_host,
+    port: credentials.db_port,
+    user: credentials.db_user,
+    password: credentials.db_password,
+    database: credentials.db_database,
+    useConnectionPooling: true,
+    schema: {
+        tableName: 'session',
+        columnNames: {
+            session_id: 'session_id',
+            expires: 'expires',
+            data: 'data'
+        }
+    }
+};
+var sessionStore = new MySQLStore(options);
+app.use(session({
     resave: false,
     saveUninitialized: false,
     secret: credentials.cookieSecret,
+    store: sessionStore,
+    // key: 'session_cookie_name',
     cookie:{
         maxAge:7*24*1000*60*60 // default session expiration is 1 week
     },
 }));
-// session
 app.use(function(req, res, next){
     res.locals.goal = req.session.goal;
     next();
@@ -89,6 +110,8 @@ switch (app.get('env')) {
         break;
     case 'production':
         // module 'express-logger' supports daily log rotation
+        // NOTE: issue found, https://github.com/joehewitt/express-logger/issues/5, not pull merged!
+        // another option is https://github.com/winstonjs/winston
         app.use(require('express-logger')({path: __dirname + '/logs/requests.log'}));
         break;
 }
