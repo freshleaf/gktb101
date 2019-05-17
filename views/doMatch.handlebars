@@ -64,7 +64,7 @@
                 <label for="score" class="col-form-label-sm">高考分数</label>
             </div>
             <div class="input-group-sm">
-                <input name="inputScore" type="number" class="text-danger form-control mx-sm-2 {{#if invalidScore}}is-invalid{{/if}}" placeholder="我的高考分数" {{#if usersetting.inputScore}}value="{{usersetting.inputScore}}"{{/if}} required>
+                <input id="inputScore" name="inputScore" type="number" class="text-danger form-control mx-sm-2 {{#if invalidScore}}is-invalid{{/if}}" placeholder="我的高考分数" {{#if usersetting.inputScore}}value="{{usersetting.inputScore}}"{{/if}} required>
                 <label class="invalid-feedback">请输入合理的高考分数</label>
             </div>
         </div>
@@ -164,6 +164,12 @@
                     $(this).text('显示历史数据');
                     $('tr.text-muted').attr("hidden", true);
                 }
+            });
+            $('#studentLocation').change(function () {
+                $('form').submit();
+            });
+            $('#type').change(function () {
+                $('form').submit();
             });
         });
     </script>

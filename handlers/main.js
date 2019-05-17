@@ -417,8 +417,6 @@ exports.doMatch = function (req, res) {
     var type = data.getTypeString(req.session.usersetting.type);
     var universityGoalSize = 0;
     var majorGoalSize = 0;
-    var matchedUniversityGoalSize = 0;
-    var matchedMajorGoalSize = 0;
     var universityGoalCodeList = [];
 
     if (req.session.goal && req.session.goal.items) {
@@ -433,7 +431,6 @@ exports.doMatch = function (req, res) {
                 goal.type = parts[2];
                 universityGoalSize += 1;
                 if (goal.type == type || type === '不限') {
-                    matchedUniversityGoalSize += 1;
                     goalUniversities.push(goal);
                     universityGoalCodeList.push(goal.university);
                 }
@@ -445,7 +442,6 @@ exports.doMatch = function (req, res) {
                 goal.type = parts[2];
                 majorGoalSize += 1;
                 if (goal.type == type || type === '不限') {
-                    matchedMajorGoalSize += 1;
                     goalMajors.push(goal);
                 }
             }
@@ -459,6 +455,7 @@ exports.doMatch = function (req, res) {
     for (i = 0; i < goalMajors.length; i++) {
         temp = goalMajors[i];
         goalMajorList = data.getMajorGoal(temp.location, temp.university, temp.major, temp.type);
+        var firstLineGoal;
         for (j = 0; j < goalMajorList.length; j++) {
             goalTemp = {};
             goalTemp.isMajorGoal = true;
@@ -475,12 +472,14 @@ exports.doMatch = function (req, res) {
             if (j == 0) {
                 goalTemp.isFirstLine = true;
                 goalTemp.historyRecords = [];
+                firstLineGoal = goalTemp;
                 tempList.push(goalTemp);
             } else {
-                tempList[i].historyRecords.push(goalTemp);
+                firstLineGoal.historyRecords.push(goalTemp);
             }
         }
     }
+    var matchedMajorGoalSize = tempList.length;
     var goalUniversityList = data.getUniversityGoal(req.session.usersetting.sl, universityGoalCodeList, type);
     var lastUniversity, lastType;
     for (i = 0; i < goalUniversityList.length; i++) {
@@ -522,6 +521,7 @@ exports.doMatch = function (req, res) {
     if (tempList.length == 0) {
         isShowEmptyResult = true;
     }
+    var matchedUniversityGoalSize = tempList.length - matchedMajorGoalSize;
 
     // calculate possibility and re-order
     // NOTE: this is the very simple method, just compare the latest min score with input score
