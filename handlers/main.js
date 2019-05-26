@@ -612,3 +612,58 @@ exports.doMatch = function (req, res) {
         matchedMajorGoalSize: matchedMajorGoalSize,
     });
 };
+
+exports.trendLocationLine = function (req, res) {
+    var i = 0;
+    var temp;
+    var locations = data.getLocations();
+    var locationArray = '';
+    for (i = 0; i < locations.length; i++) {
+        locationArray += '\'' + locations[i].name + '\'';
+        if (i < locations.length - 1) {
+            locationArray += ',';
+        }
+    }
+    var x_years = '';
+    for (i = 2005; i < 2019; i++) {
+        x_years += '\'' + i + '\'';
+        if (i < 2019) {
+            x_years += ',';
+        }
+    }
+
+    var locationLine = data.getLocationScore();
+    var typeArt = [];
+    var typeEngineer = [];
+    var typeMix = [];
+    for (i = 0; i < locationLine.length; i++) {
+        temp = {};
+        temp.score = locationLine[i].score;
+        temp.type = locationLine[i].type;
+        temp.x = locationLine[i].year - 2005;
+        temp.y = locationLine[i].location_order - 1;
+        if (temp.type == '文科') {
+            typeArt.push(temp);
+        } else if (temp.type == '理科') {
+            typeEngineer.push(temp);
+        } else if (temp.type == '综合') {
+            if (temp.y == 1) {
+                temp.y = 0;
+            } else if (temp.y == 5) {
+                temp.y = 1;
+            } else if (temp.y == 16) {
+                temp.y = 2;
+            } else if (temp.y == 18) {
+                temp.y = 3;
+            } else if (temp.y == 30) {
+                temp.y = 4;
+            }
+            typeMix.push(temp);
+        }
+    }
+
+    var y_mix = "'上海','广东','江苏','辽宁','浙江'";
+
+    res.render('trendLocationLine', {y_axes: locationArray, x_axes: x_years, scoreDataArt: typeArt
+        , scoreDataEngineer: typeEngineer, scoreDataMix: typeMix, y_mix: y_mix});
+};

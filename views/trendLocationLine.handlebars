@@ -1,0 +1,305 @@
+{{#section 'head'}}
+    <title>高考填报101_本科批次线统计</title>
+    <meta name="keywords" content="高考,高考志愿填报,报考指南,招生,本科专业,录取分数线,985,211,重点大学,高考分数线,设定高考目标,省控线,本科批次线,重点线">
+    <meta name="description" content="高考填报101提供985/211重点本科大学，本科批次分数线（一本线）统计">
+{{/section}}
+
+{{> header}}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">首页</a></li>
+            <li class="breadcrumb-item active">看趋势</li>
+            <li class="breadcrumb-item active">本科批次线</li>
+        </ol>
+    </nav>
+</div>
+<main role="main" class="container">
+    <h5 class="text-center">2018年高考试卷使用情况</h5>
+    <div class="table-responsive-md">
+        <table class="table table-bordered table-hover mb-5 table-sm small">
+            <thead class="thead-dark">
+            <tr>
+                <th>全国卷类型</th>
+                <th>使用地区</th>
+                <th>科目</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>全国I卷</td>
+                <td>安徽、湖北、福建、湖南、山西、河北、江西、广东、河南、山东</td>
+                <td>理数、英语、文综、理综、语文、文数</td>
+            </tr>
+            <tr>
+                <td>全国II卷</td>
+                <td>甘肃、青海、西藏、黑龙江、吉林、辽宁、宁夏、新疆、内蒙古、陕西、重庆</td>
+                <td>理数、英语、文综、理综、语文、文数</td>
+            </tr>
+            <tr>
+                <td>全国III卷</td>
+                <td>云南、四川、广西、贵州</td>
+                <td>理数、英语、文综、理综、语文、文数</td>
+            </tr>
+            <tr class="table-secondary">
+                <td>北京卷</td>
+                <td>北京</td>
+                <td>理数、英语、文综、理综、语文、文数</td>
+            </tr>
+            <tr class="table-secondary">
+                <td>天津卷</td>
+                <td>天津</td>
+                <td>理数、英语、文综、理综、语文、文数</td>
+            </tr>
+            <tr class="table-secondary">
+                <td>江苏卷</td>
+                <td>江苏</td>
+                <td>语文、数学、英语、化学、物理、生物、政治、历史、地理</td>
+            </tr>
+            <tr class="table-secondary">
+                <td>浙江卷</td>
+                <td>浙江</td>
+                <td>语文、数学、英语</td>
+            </tr>
+            <tr class="table-secondary">
+                <td>上海卷</td>
+                <td>上海</td>
+                <td>语文、数学、英语</td>
+            </tr>
+            <tr class="table-secondary">
+                <td>海南卷</td>
+                <td>海南</td>
+                <td>语文、理数、文数、英语、化学、物理、生物、政治、生物、历史、地理</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="text-center">文科（第一批）本科控制线</div>
+    <div id="scoreArtChart"></div>
+    <hr>
+    <div class="text-center">理科（第一批）本科控制线</div>
+    <div id="scoreEngineerChart"></div>
+    <hr>
+    <div class="text-center">综合（第一批）本科控制线</div>
+    <div id="scoreMixChart"></div>
+</main>
+{{> footer}}
+
+{{#section 'script'}}
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.5.1/dist/g2.min.js"></script>
+    <script type="text/javascript">
+        var data1 = [{{#each scoreDataArt}}[{{x}},{{y}},{{score}}],{{/each}}];
+        var source1 = [];
+        for (var i = 0; i < data1.length; i++) {
+            var item = data1[i];
+            var obj = {};
+            obj.year = item[0];
+            obj.location = item[1];
+            obj.score = item[2];
+            source1.push(obj);
+        }
+        var chart1 = new G2.Chart({
+            container: 'scoreArtChart',
+            forceFit: true,
+            height: 1000,
+            padding: [14, 0, 120, 45]
+        });
+        chart1.source(source1, {
+            year: {
+                type: 'cat',
+                values: [{{{x_axes}}}]
+            },
+            location: {
+                type: 'cat',
+                values: [{{{y_axes}}}]
+            }
+        });
+        chart1.axis('year', {
+            tickLine: null,
+            grid: {
+                align: 'center',
+                lineStyle: {
+                    lineWidth: 1,
+                    lineDash: null,
+                    stroke: '#f0f0f0'
+                }
+            }
+        });
+        chart1.axis('location', {
+            title: null,
+            grid: {
+                align: 'center',
+                lineStyle: {
+                    lineWidth: 1,
+                    lineDash: null,
+                    stroke: '#f0f0f0'
+                },
+                showFirstLine: true
+            }
+        });
+        chart1.tooltip(true, {
+            showTitle: false,
+            itemTpl: '<li data-index={index}><span style="background-color:{color};width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;"></span>{name}: {value}</li>',
+        });
+        chart1.polygon().position('year*location').color('score', '#BAE7FF-#03A9F4-#536DFE').label('score', {
+            offset: -2,
+            textStyle: {
+                fill: '#fff',
+                shadowBlur: 2,
+                shadowColor: 'rgba(0, 0, 0, .45)'
+            }
+        }).style({
+            lineWidth: 1,
+            stroke: '#fff'
+        }).tooltip('year*location*score', (year, location, score) => {
+            return {
+                name: [{{{y_axes}}}][location] + '' + [{{{x_axes}}}][year] + '文科',
+                value: score
+            };
+        });
+        chart1.render();
+
+
+        var data2 = [{{#each scoreDataEngineer}}[{{x}},{{y}},{{score}}],{{/each}}];
+        var source2 = [];
+        for (var i = 0; i < data2.length; i++) {
+            var item = data2[i];
+            var obj = {};
+            obj.year = item[0];
+            obj.location = item[1];
+            obj.score = item[2];
+            source2.push(obj);
+        }
+        var chart2 = new G2.Chart({
+            container: 'scoreEngineerChart',
+            forceFit: true,
+            height: 1000,
+            padding: [14, 0, 120, 45]
+        });
+        chart2.source(source2, {
+            year: {
+                type: 'cat',
+                values: [{{{x_axes}}}]
+            },
+            location: {
+                type: 'cat',
+                values: [{{{y_axes}}}]
+            }
+        });
+        chart2.axis('year', {
+            tickLine: null,
+            grid: {
+                align: 'center',
+                lineStyle: {
+                    lineWidth: 1,
+                    lineDash: null,
+                    stroke: '#f0f0f0'
+                }
+            }
+        });
+        chart2.axis('location', {
+            title: null,
+            grid: {
+                align: 'center',
+                lineStyle: {
+                    lineWidth: 1,
+                    lineDash: null,
+                    stroke: '#f0f0f0'
+                },
+                showFirstLine: true
+            }
+        });
+        chart2.tooltip(true, {
+            showTitle: false,
+            itemTpl: '<li data-index={index}><span style="background-color:{color};width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;"></span>{name}: {value}</li>',
+        });
+        chart2.polygon().position('year*location').color('score', '#FFEB3B-#FFC107-#E64A19').label('score', {
+            offset: -2,
+            textStyle: {
+                fill: '#666666',
+                shadowBlur: 2,
+                shadowColor: 'rgba(0, 0, 0, .45)'
+            }
+        }).style({
+            lineWidth: 1,
+            stroke: '#fff'
+        }).tooltip('year*location*score', (year, location, score) => {
+            return {
+                name: [{{{y_axes}}}][location] + '' + [{{{x_axes}}}][year] + '理科',
+                value: score
+            };
+        });
+        chart2.render();
+
+        var data3 = [{{#each scoreDataMix}}[{{x}},{{y}},{{score}}],{{/each}}];
+        var source3 = [];
+        for (var i = 0; i < data3.length; i++) {
+            var item = data3[i];
+            var obj = {};
+            obj.year = item[0];
+            obj.location = item[1];
+            obj.score = item[2];
+            source3.push(obj);
+        }
+        var chart3 = new G2.Chart({
+            container: 'scoreMixChart',
+            forceFit: true,
+            height: 300,
+            padding: [14, 0, 120, 45]
+        });
+        chart3.source(source3, {
+            year: {
+                type: 'cat',
+                values: [{{{x_axes}}}]
+            },
+            location: {
+                type: 'cat',
+                values: [{{{y_mix}}}]
+            }
+        });
+        chart3.axis('year', {
+            tickLine: null,
+            grid: {
+                align: 'center',
+                lineStyle: {
+                    lineWidth: 1,
+                    lineDash: null,
+                    stroke: '#f0f0f0'
+                }
+            }
+        });
+        chart3.axis('location', {
+            title: null,
+            grid: {
+                align: 'center',
+                lineStyle: {
+                    lineWidth: 1,
+                    lineDash: null,
+                    stroke: '#f0f0f0'
+                },
+                showFirstLine: true
+            }
+        });
+        chart3.tooltip(true, {
+            showTitle: false,
+            itemTpl: '<li data-index={index}><span style="background-color:{color};width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;"></span>{name}: {value}</li>',
+        });
+        chart3.polygon().position('year*location').color('score', '#BAE7FF-#03A9F4-#536DFE').label('score', {
+            offset: -2,
+            textStyle: {
+                fill: '#fff',
+                shadowBlur: 2,
+                shadowColor: 'rgba(0, 0, 0, .45)'
+            }
+        }).style({
+            lineWidth: 1,
+            stroke: '#fff'
+        }).tooltip('year*location*score', (year, location, score) => {
+            return {
+                name: [{{{y_mix}}}][location] + '' + [{{{x_axes}}}][year] + '文科',
+                value: score
+            };
+        });
+        chart3.render();
+    </script>
+{{/section}}
