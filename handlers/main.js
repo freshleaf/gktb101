@@ -667,3 +667,87 @@ exports.trendLocationLine = function (req, res) {
     res.render('trendLocationLine', {y_axes: locationArray, x_axes: x_years, scoreDataArt: typeArt
         , scoreDataEngineer: typeEngineer, scoreDataMix: typeMix, y_mix: y_mix});
 };
+
+exports.trendLocationLinePredict = function (req, res) {
+    var length = 0;
+    var i = 0;
+    var temp;
+
+    var scoreLocations = [];
+    var locations = data.getLocations();
+    if (locations) {
+        length = locations.length;
+    }
+    if (!req.query.location) {
+        if (!req.session.usersetting) {
+            req.session.usersetting = createSessionSetting();
+        }
+        req.query.location = req.session.usersetting.sl;
+    }
+    for (i = 0; i < length; i++) {
+        var location = locations[i];
+        temp = {};
+        temp.name = location.name;
+        temp.code = location.code;
+        if (temp.code == req.query.location) {
+            temp.selected = ' selected';
+        } else {
+            temp.selected = '';
+        }
+        scoreLocations.push(temp);
+    }
+
+    var allScoreLine = [];
+    var predictScoreLine = [];
+    var locationLine = data.getLocationScore();
+    var types = [];
+    var name;
+    var maxScore = 600;
+    for (i = 0; i < locationLine.length; i++) {
+        if (locationLine[i].code != req.query.location) {
+            continue;
+        }
+        if (!name) {
+            name = locationLine[i].name;
+        }
+        temp = {};
+        temp.score = locationLine[i].score;
+        if (temp.score > maxScore) {
+            maxScore = maxScore + 50;
+        }
+        temp.year = locationLine[i].year;
+        // temp.type = locationLine[i].code + locationLine[i].type;
+        temp.type = locationLine[i].type;
+        allScoreLine.push(temp);
+
+        temp = {};
+        if (locationLine[i].year == '2018') {
+            temp.score = locationLine[i].score;
+            types.push(locationLine[i].type);
+        } else {
+            temp.score = 'null';
+        }
+        temp.year = locationLine[i].year;
+        // temp.type = locationLine[i].code + locationLine[i].type;
+        temp.type = locationLine[i].type;
+        predictScoreLine.push(temp);
+    }
+
+    var predictMap = data.getPredictLocationLine();
+    for (i = 0; i < types.length; i++) {
+        var key = name + '_' + types[i];
+        var score = predictMap.get(key);
+        if (!score) {
+            continue;
+        }
+        temp = {};
+        temp.score = score;
+        temp.year = '2019';
+        temp.type = types[i];
+        allScoreLine.push(temp);
+        predictScoreLine.push(temp);
+    }
+
+    res.render('trendLocationLinePredict', {location: scoreLocations, all: allScoreLine, predict: predictScoreLine
+        , maxScore: maxScore});
+};

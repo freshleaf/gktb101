@@ -1,0 +1,112 @@
+{{#section 'head'}}
+    <title>高考填报101_2019年本科批次线预测</title>
+    <meta name="keywords" content="高考,高考志愿填报,报考指南,招生,本科专业,录取分数线,985,211,重点大学,高考分数线,设定高考目标,省控线,本科批次线,重点线,2019年预测">
+    <meta name="description" content="高考填报101提供985/211重点本科大学，本科批次分数线（一本线）2019年分数预测">
+{{/section}}
+
+{{> header}}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">首页</a></li>
+            <li class="breadcrumb-item active">看趋势</li>
+            <li class="breadcrumb-item active">2019本科批次线预测</li>
+        </ol>
+    </nav>
+</div>
+<main role="main" class="container">
+    <form>
+        <div class="form-group row">
+            <div class="col-auto">
+                <label for="location" class="col-form-label-sm">地区</label>
+            </div>
+            <div class="col-auto">
+                <select id="location" class="form-control form-control-sm" name="location">
+                    {{#each location}}
+                        <option value="{{code}}"{{selected}}>{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+    </form>
+    <div id="mountNode"></div>
+    <hr>
+    <p>文科</p>
+    <div id="mountNode"></div>
+</main>
+{{> footer}}
+
+{{#section 'script'}}
+    <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.5.1/dist/g2.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#location').change(function () {
+                $('form').submit();
+            });
+        });
+
+        var data = [{{#each all}}{year:{{year}},type:'{{type}}',score:{{score}} },{{/each}}];
+        var dash = [{{#each predict}}{year:{{year}},type:'{{type}}',score:{{score}} },{{/each}}];
+        var chart = new G2.Chart({
+            container: 'mountNode',
+            forceFit: true,
+            height: 500,
+            padding: [100, 20, 30, 45]
+        });
+        chart.source(data);
+        chart.axis('year', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            }
+        });
+        chart.axis('score', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            }
+        });
+        chart.legend(false);
+        // chart.line({
+        //     startOnZero: true
+        // }).position('year*score').color('type'
+        // //         , (type) => {
+        // //     if (type === '11理科') {
+        // //         return 'red';
+        // //     }
+        // //     return '#cccccc';
+        // // }
+        // ).size(2);
+        var view1 = chart.view();
+        view1.source(data, {
+            score: {
+                min: 300,
+                max: {{maxScore}}
+            },
+            year: {
+                min: 2005,
+                max: 2019
+            }
+        });
+        view1.line().position('year*score').color('type').size(2);
+        var view2 = chart.view();
+        view2.source(dash, {
+            score: {
+                min: 300,
+                max: {{maxScore}}
+            },
+            year: {
+                min: 2005,
+                max: 2019
+            }
+        });
+        view2.tooltip(false);
+        view2.line().position('year*score').color('type', ['white']).style({
+            lineDash: [4, 4]
+        }).size(3);
+
+        chart.render();
+    </script>
+{{/section}}
