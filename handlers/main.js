@@ -613,6 +613,76 @@ exports.doMatch = function (req, res) {
     });
 };
 
+exports.trend = function (req, res) {
+    var i;
+    var temp;
+    var predictList1 = [];
+    var predictList2 = [];
+    var predictList3 = [];
+    var locations = data.getLocations();
+    var predictMap = data.getPredictLocationLine();
+    var length = 11;
+    for (i = 0; i < length; i++) {
+        temp = {};
+        temp.name = locations[i].name;
+        temp.score1 = predictMap.get(temp.name + '_文科');
+        temp.score2 = predictMap.get(temp.name + '_理科');
+        temp.score3 = predictMap.get(temp.name + '_综合');
+        if (!temp.score1) {
+            temp.score1 = '--';
+        }
+        if (!temp.score2) {
+            temp.score2 = '--';
+        }
+        if (!temp.score3) {
+            temp.score3 = '--';
+        }
+        predictList1.push(temp);
+    }
+    length = 22;
+    for (i = 11; i < length; i++) {
+        temp = {};
+        temp.name = locations[i].name;
+        temp.score1 = predictMap.get(temp.name + '_文科');
+        temp.score2 = predictMap.get(temp.name + '_理科');
+        temp.score3 = predictMap.get(temp.name + '_综合');
+        if (!temp.score1) {
+            temp.score1 = '--';
+        }
+        if (!temp.score2) {
+            temp.score2 = '--';
+        }
+        if (!temp.score3) {
+            temp.score3 = '--';
+        }
+        predictList2.push(temp);
+    }
+    length = locations.length;
+    for (i = 22; i < length; i++) {
+        temp = {};
+        temp.name = locations[i].name;
+        temp.score1 = predictMap.get(temp.name + '_文科');
+        temp.score2 = predictMap.get(temp.name + '_理科');
+        temp.score3 = predictMap.get(temp.name + '_综合');
+        if (!temp.score1) {
+            temp.score1 = '--';
+        }
+        if (!temp.score2) {
+            temp.score2 = '--';
+        }
+        if (!temp.score3) {
+            temp.score3 = '--';
+        }
+        predictList3.push(temp);
+    }
+
+    res.render('trend', {
+        table1: predictList1,
+        table2: predictList2,
+        table3: predictList3
+    });
+};
+
 exports.trendLocationLine = function (req, res) {
     var i = 0;
     var temp;
@@ -664,14 +734,21 @@ exports.trendLocationLine = function (req, res) {
 
     var y_mix = "'上海','广东','江苏','辽宁','浙江'";
 
-    res.render('trendLocationLine', {y_axes: locationArray, x_axes: x_years, scoreDataArt: typeArt
-        , scoreDataEngineer: typeEngineer, scoreDataMix: typeMix, y_mix: y_mix});
+    res.render('trendLocationLine', {
+        y_axes: locationArray,
+        x_axes: x_years,
+        scoreDataArt: typeArt,
+        scoreDataEngineer: typeEngineer,
+        scoreDataMix: typeMix,
+        y_mix: y_mix
+    });
 };
 
 exports.trendLocationLinePredict = function (req, res) {
     var length = 0;
     var i = 0;
     var temp;
+    var locationName = '';
 
     var scoreLocations = [];
     var locations = data.getLocations();
@@ -690,6 +767,7 @@ exports.trendLocationLinePredict = function (req, res) {
         temp.name = location.name;
         temp.code = location.code;
         if (temp.code == req.query.location) {
+            locationName = location.name;
             temp.selected = ' selected';
         } else {
             temp.selected = '';
@@ -703,22 +781,30 @@ exports.trendLocationLinePredict = function (req, res) {
     var types = [];
     var name;
     var maxScore = 600;
+    var artScoreLines = [];
+    var engineerScoreLines = [];
     for (i = 0; i < locationLine.length; i++) {
+        temp = {};
+        temp.score = locationLine[i].score;
+        temp.year = locationLine[i].year;
         if (locationLine[i].code != req.query.location) {
+            temp.type = locationLine[i].code + locationLine[i].type;
+            if (locationLine[i].type === '理科') {
+                engineerScoreLines.push(temp);
+            } else if (locationLine[i].type === '文科') {
+                artScoreLines.push(temp);
+            }
             continue;
         }
+        temp.type = locationLine[i].type;
+        allScoreLine.push(temp);
+
         if (!name) {
             name = locationLine[i].name;
         }
-        temp = {};
-        temp.score = locationLine[i].score;
         if (temp.score > maxScore) {
             maxScore = maxScore + 50;
         }
-        temp.year = locationLine[i].year;
-        // temp.type = locationLine[i].code + locationLine[i].type;
-        temp.type = locationLine[i].type;
-        allScoreLine.push(temp);
 
         temp = {};
         if (locationLine[i].year == '2018') {
@@ -728,9 +814,15 @@ exports.trendLocationLinePredict = function (req, res) {
             temp.score = 'null';
         }
         temp.year = locationLine[i].year;
-        // temp.type = locationLine[i].code + locationLine[i].type;
         temp.type = locationLine[i].type;
         predictScoreLine.push(temp);
+    }
+    for (i = 0; i < allScoreLine.length; i++) {
+        if (allScoreLine[i].type === '文科') {
+            artScoreLines.push(allScoreLine[i]);
+        } else if (allScoreLine[i].type === '理科') {
+            engineerScoreLines.push(allScoreLine[i]);
+        }
     }
 
     var predictMap = data.getPredictLocationLine();
@@ -748,6 +840,74 @@ exports.trendLocationLinePredict = function (req, res) {
         predictScoreLine.push(temp);
     }
 
-    res.render('trendLocationLinePredict', {location: scoreLocations, all: allScoreLine, predict: predictScoreLine
-        , maxScore: maxScore});
+    var predictList1 = [];
+    var predictList2 = [];
+    var predictList3 = [];
+    length = 11;
+    for (i = 0; i < length; i++) {
+        temp = {};
+        temp.name = locations[i].name;
+        temp.score1 = predictMap.get(temp.name + '_文科');
+        temp.score2 = predictMap.get(temp.name + '_理科');
+        temp.score3 = predictMap.get(temp.name + '_综合');
+        if (!temp.score1) {
+            temp.score1 = '--';
+        }
+        if (!temp.score2) {
+            temp.score2 = '--';
+        }
+        if (!temp.score3) {
+            temp.score3 = '--';
+        }
+        predictList1.push(temp);
+    }
+    length = 22;
+    for (i = 11; i < length; i++) {
+        temp = {};
+        temp.name = locations[i].name;
+        temp.score1 = predictMap.get(temp.name + '_文科');
+        temp.score2 = predictMap.get(temp.name + '_理科');
+        temp.score3 = predictMap.get(temp.name + '_综合');
+        if (!temp.score1) {
+            temp.score1 = '--';
+        }
+        if (!temp.score2) {
+            temp.score2 = '--';
+        }
+        if (!temp.score3) {
+            temp.score3 = '--';
+        }
+        predictList2.push(temp);
+    }
+    length = locations.length;
+    for (i = 22; i < length; i++) {
+        temp = {};
+        temp.name = locations[i].name;
+        temp.score1 = predictMap.get(temp.name + '_文科');
+        temp.score2 = predictMap.get(temp.name + '_理科');
+        temp.score3 = predictMap.get(temp.name + '_综合');
+        if (!temp.score1) {
+            temp.score1 = '--';
+        }
+        if (!temp.score2) {
+            temp.score2 = '--';
+        }
+        if (!temp.score3) {
+            temp.score3 = '--';
+        }
+        predictList3.push(temp);
+    }
+
+    res.render('trendLocationLinePredict', {
+        location: scoreLocations,
+        all: allScoreLine,
+        predict: predictScoreLine,
+        maxScore: maxScore,
+        table1: predictList1,
+        table2: predictList2,
+        table3: predictList3,
+        artScoreLines: artScoreLines,
+        engineerScoreLines: engineerScoreLines,
+        locationName: locationName
+    });
 };

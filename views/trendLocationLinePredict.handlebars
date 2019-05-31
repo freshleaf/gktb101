@@ -9,7 +9,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">首页</a></li>
-            <li class="breadcrumb-item active">看趋势</li>
+            <li class="breadcrumb-item"><a href="/trend">看趋势</a></li>
             <li class="breadcrumb-item active">2019本科批次线预测</li>
         </ol>
     </nav>
@@ -18,7 +18,7 @@
     <form>
         <div class="form-group row">
             <div class="col-auto">
-                <label for="location" class="col-form-label-sm">地区</label>
+                <label for="location" class="col-form-label-sm">选择地区</label>
             </div>
             <div class="col-auto">
                 <select id="location" class="form-control form-control-sm" name="location">
@@ -30,14 +30,139 @@
         </div>
     </form>
     <div id="mountNode"></div>
-    <hr>
-    <p>文科</p>
-    <div id="mountNode"></div>
+    <div class="mt-3">通过构造 ARMA 时间序列模型，做出了 <strong>2019</strong> 年分数线的预测。</div>
+    <div class="table-responsive-md mt-1">
+        <table class="table table-hover table-bordered table-sm">
+            <caption>预测数据生成于2019年5月31日</caption>
+            <tbody>
+            <tr class="table-primary">
+                <td>预测2019</td>
+                {{#each table1}}
+                    <td>{{name}}</td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td>文科</td>
+                {{#each table1}}
+                    <td>{{score1}}</td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td>理科</td>
+                {{#each table1}}
+                    <td>{{score2}}</td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td>综合</td>
+                {{#each table1}}
+                    <td>{{score3}}</td>
+                {{/each}}
+            </tr>
+            <tr class="table-primary">
+                <td></td>
+                {{#each table2}}
+                    <td>{{name}}</td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td>文科</td>
+                {{#each table2}}
+                    <td>{{score1}}</td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td>理科</td>
+                {{#each table2}}
+                    <td>{{score2}}</td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td>综合</td>
+                {{#each table2}}
+                    <td>{{score3}}</td>
+                {{/each}}
+            </tr>
+            <tr class="table-primary">
+                <td></td>
+                {{#each table3}}
+                    <td>{{name}}</td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td>文科</td>
+                {{#each table3}}
+                    <td>{{score1}}</td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td>理科</td>
+                {{#each table3}}
+                    <td>{{score2}}</td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td>综合</td>
+                {{#each table3}}
+                    <td>{{score3}}</td>
+                {{/each}}
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <h5 class="text-center">文科分数线，{{locationName}}与其他地区比较</h5>
+    <div id="chartArt"></div>
+    <h5 class="text-center">理科分数线，{{locationName}}与其他地区比较</h5>
+    <div id="chartEngineer"></div>
 </main>
 {{> footer}}
 
 {{#section 'script'}}
     <script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.g2-3.5.1/dist/g2.min.js"></script>
+    <style>
+        .custom-tooltip {
+            width: 100% !important;
+            height: 10% !important;
+            position: absolute;
+            top: 0px;
+            left: 0px
+        }
+
+        .custom-tooltip-item {
+            width: 150px;
+            height: 50px;
+            position: relative;
+            float: left;
+            margin-left: 20px;
+            border-left-style: solid;
+            border-left-width: 5px
+        }
+
+        .custom-tooltip-item:first-child {
+            margin-left: 0
+        }
+
+        .custom-tooltip-item-name {
+            width: 80%;
+            height: 20px;
+            position: absolute;
+            top: 0px;
+            left: 10px;
+            color: rgba(0, 0, 0, 0.45);
+            font-size: 14px
+        }
+
+        .custom-tooltip-item-value {
+            width: 80%;
+            height: 30px;
+            position: absolute;
+            bottom: 0px;
+            left: 10px;
+            color: #262626;
+            font-size: 22px;
+            /*font-weight: bold*/
+        }
+    </style>
     <script type="text/javascript">
         $(document).ready(function () {
             $('#location').change(function () {
@@ -51,7 +176,7 @@
             container: 'mountNode',
             forceFit: true,
             height: 500,
-            padding: [100, 20, 30, 45]
+            padding: [80, 20, 30, 45]
         });
         chart.source(data);
         chart.axis('year', {
@@ -69,16 +194,6 @@
             }
         });
         chart.legend(false);
-        // chart.line({
-        //     startOnZero: true
-        // }).position('year*score').color('type'
-        // //         , (type) => {
-        // //     if (type === '11理科') {
-        // //         return 'red';
-        // //     }
-        // //     return '#cccccc';
-        // // }
-        // ).size(2);
         var view1 = chart.view();
         view1.source(data, {
             score: {
@@ -107,6 +222,110 @@
             lineDash: [4, 4]
         }).size(3);
 
+        chart.tooltip({
+            follow: false,
+            crosshairs: 'y',
+            htmlContent: function htmlContent(title, items) {
+                var alias = {
+                    文科: '文科重点线',
+                    理科: '理科重点线',
+                    综合: '综合重点线'
+                };
+                var html = '<div class="custom-tooltip">';
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    var color = item.color;
+                    var name = alias[item.name];
+                    var value = item.value;
+                    var domHead = '<div class="custom-tooltip-item" style="border-left-color:' + color + '">';
+                    var domName = '<div class="custom-tooltip-item-name">' + item.title + name + '</div>';
+                    var domValue = '<div class="custom-tooltip-item-value">' + value;
+                    if (item.title == 2019) {
+                        domValue += '<span class="small text-muted"> (预测)</span>';
+                    }
+                    domValue += '</div>';
+                    var domTail = '</div>';
+                    html += domHead + domName + domValue + domTail;
+                }
+                return html + '</div>';
+            }
+        });
+        chart.showTooltip({
+            x: $("#mountNode").width() - 20,
+            y: 100
+        });
         chart.render();
+
+        var artAllData = [{{#each artScoreLines}}{year:{{year}},type:'{{type}}',score:{{score}} },{{/each}}];
+        var chartArt = new G2.Chart({
+            container: 'chartArt',
+            forceFit: true,
+            height: 300,
+        });
+        chartArt.axis('year', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            }
+        });
+        chartArt.axis('score', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            }
+        });
+        chartArt.source(artAllData);
+        chartArt.tooltip(false);
+        chartArt.legend(false);
+        chartArt.line().position('year*score').color('type', (type) => {
+            if (type === '文科') {
+                return '#61A5E8';
+            }
+            return '#dddddd';
+        }).size('type', (type) => {
+            if (type === '文科') {
+                return 5;
+            }
+            return 1;
+        });
+        chartArt.render();
+
+        var engineerAllData = [{{#each engineerScoreLines}}{year:{{year}},type:'{{type}}',score:{{score}} },{{/each}}];
+        var chartEngineer = new G2.Chart({
+            container: 'chartEngineer',
+            forceFit: true,
+            height: 300,
+        });
+        chartEngineer.axis('year', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            }
+        });
+        chartEngineer.axis('score', {
+            label: {
+                textStyle: {
+                    fill: '#aaaaaa'
+                }
+            }
+        });
+        chartEngineer.source(engineerAllData);
+        chartEngineer.tooltip(false);
+        chartEngineer.legend(false);
+        chartEngineer.line().position('year*score').color('type', (type) => {
+            if (type === '理科') {
+                return '#7ECF51';
+            }
+            return '#dddddd';
+        }).size('type', (type) => {
+            if (type === '理科') {
+                return 5;
+            }
+            return 1;
+        });
+        chartEngineer.render();
     </script>
 {{/section}}
