@@ -1,0 +1,148 @@
+{{#section 'head'}}
+    {{#if seoTitle}}
+        <title>{{seoTitle}}</title>
+    {{/if}}
+    {{#unless seoTitle}}
+        <title>高考填报101_高校分数线查询</title>
+    {{/unless}}
+    {{#if seoKeywords}}
+        <meta name="keywords" content="{{seoKeywords}}">
+    {{/if}}
+    {{#unless seoKeywords}}
+        <meta name="keywords" content="高考,高考志愿填报,高考高校分数线,211,985,重点大学分数线,学校分数线">
+    {{/unless}}
+    <meta name="description" content="历年高考985/211重点高校分数线查询">
+{{/section}}
+
+{{> header}}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">首页</a></li>
+            {{#if university}}
+            <li class="breadcrumb-item"><a href="/search/university">高校列表</a></li>
+            {{/if}}
+            <li class="breadcrumb-item active">高校分数线查询</li>
+        </ol>
+    </nav>
+</div>
+<main role="main" class="container">
+    {{#if searchKey}}
+        <p>查询985/211高校名称：<strong>{{searchKey}}</strong></p>
+    {{/if}}
+
+    {{#if university}}
+        <p>
+            <strong>{{university.name}}</strong> {{#if university.is_985}}<span class="badge badge-secondary ml-1">985</span>{{/if}}
+            {{#if university.is_211}}<span class="badge badge-secondary ml-1">211</span>{{/if}}
+            {{#if university.alias}}（{{university.alias}}）{{/if}}
+            {{#if university.loc}}<span class="ml-2">所在地：{{university.loc}}</span>{{/if}}
+        </p>
+        <form class="form-inline mt-4 mb-4" id="contentForm">
+            <div class="col-auto">
+                <label for="studentLocation" class="col-form-label-sm">考生所在地</label>
+            </div>
+            <select id="studentLocation" class="form-control form-control-sm" name="loc">
+                {{#each location}}
+                    <option value="{{code}}"{{selected}}>{{name}}</option>
+                {{/each}}
+            </select>
+            <input type="hidden" name="code" value="{{code}}" />
+        </form>
+        {{#if resultList}}
+        <div class="table-responsive-md">
+            <table class="table table-bordered table-hover table-sm table-striped">
+                <caption>{{university.name}}（第一批）本科招生分数线</caption>
+                <thead class="thead-light">
+                <tr>
+                    <th rowspan="2">地区</th>
+                    <th rowspan="2">年份</th>
+                    <th colspan="4">文科</th>
+                    <th colspan="4">理科</th>
+                    <th colspan="4">综合</th>
+                </tr>
+                <tr>
+                    <th>最高分</th>
+                    <th>最低分</th>
+                    <th>平均分</th>
+                    <th>录取人数</th>
+                    <th>最高分</th>
+                    <th>最低分</th>
+                    <th>平均分</th>
+                    <th>录取人数</th>
+                    <th>最高分</th>
+                    <th>最低分</th>
+                    <th>平均分</th>
+                    <th>录取人数</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each resultList}}
+                    <tr>
+                        <td>{{loactionName}}</td>
+                        <td>{{year}}</td>
+                        <td>{{artMaxScore}}</td>
+                        <td>{{artMinScore}}</td>
+                        <td>{{artAveScore}}</td>
+                        <td>{{artAdmissions}}</td>
+                        <td>{{enginMaxScore}}</td>
+                        <td>{{enginMinScore}}</td>
+                        <td>{{enginAveScore}}</td>
+                        <td>{{enginAdmissions}}</td>
+                        <td>{{mixMaxScore}}</td>
+                        <td>{{mixMinScore}}</td>
+                        <td>{{mixAveScore}}</td>
+                        <td>{{mixAdmissions}}</td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+        {{/if}}
+        {{#unless resultList}}
+            <p class="mb-5">未找到数据</p>
+        {{/unless}}
+        <div class="text-md-right mb-3">
+            <a href="/search/university">查看所有985/211高校 >></a>
+        </div>
+    {{/if}}
+
+    {{#unless unversity}}
+        {{#if allList}}
+            <p>仅支持985/211高校分数线查询。{{#if searchKey}}未找到匹配高校。{{/if}}</p>
+            <div class="mb-5">
+                {{#each allList}}
+                    <p>
+                        <strong>{{locName}}</strong><br>
+                        {{#each uniList}}
+                            <span class="mr-3 mt-0"><a href="{{url}}">{{name}}</a></span>
+                        {{/each}}
+                    </p>
+                {{/each}}
+            </div>
+        {{/if}}
+
+        {{#if someList}}
+            <div>找到匹配高校 {{someLength}} 个，点击查看: </>
+            <div class="mb-5">
+                {{#each someList}}
+                    <a class="mr-3" href="{{url}}">{{name}}</a>
+                {{/each}}
+            </div>
+        {{/if}}
+    {{/unless}}
+
+</main>
+{{> footer}}
+
+{{#section 'script'}}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#searchType').val("1");
+        });
+
+        $('#studentLocation').change(function () {
+            $('#contentForm').submit();
+        });
+    </script>
+{{/section}}

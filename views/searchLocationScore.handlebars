@@ -1,0 +1,71 @@
+{{#section 'head'}}
+    <title>高考填报101_各地区本科批次线查询</title>
+    <meta name="keywords" content="高考,高考志愿填报,高考地区分数线,高考本科省控线,本科批次线,重点线">
+    <meta name="description" content="各地区本科重点线查询">
+{{/section}}
+
+{{> header}}
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">首页</a></li>
+            <!--<li class="breadcrumb-item action">查询分数线</li>-->
+            <li class="breadcrumb-item active">地区分数线查询</li>
+        </ol>
+    </nav>
+</div>
+<main role="main" class="container">
+    {{#if searchKey}}
+        {{#unless searchResult}}
+            <div class="alert alert-danger" role="alert">
+                未找到地区名为"<strong>{{searchKey}}</strong>"的本科分数线
+            </div>
+        {{/unless}}
+    {{/if}}
+    <form class="form-inline mt-4 mb-4" id="contentForm">
+        <div class="col-auto">
+            <label for="studentLocation" class="col-form-label-sm">考生所在地</label>
+        </div>
+        <select id="studentLocation" class="form-control form-control-sm" name="key">
+            {{#each location}}
+                <option value="{{name}}"{{selected}}>{{name}}</option>
+            {{/each}}
+        </select>
+    </form>
+    {{#if searchResult}}
+        <div class="table-responsive-md">
+            <table class="table table-bordered table-hover table-sm table-striped">
+                <caption>各地区（第一批）本科控制线</caption>
+                <thead class="thead-light">
+                <tr>
+                    <th>地区</th>
+                    <th>年份</th>
+                    <th>文科</th>
+                    <th>理科</th>
+                    <th>综合</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#each searchResult}}
+                    <tr>
+                        <td>{{location}}</td>
+                        <td>{{year}}</td>
+                        <td>{{artScore}}</td>
+                        <td>{{enginScore}}</td>
+                        <td>{{mixScore}}</td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+    {{/if}}
+</main>
+{{> footer}}
+
+{{#section 'script'}}
+    <script type="text/javascript">
+        $('#studentLocation').change(function () {
+            $('#contentForm').submit();
+        });
+    </script>
+{{/section}}
