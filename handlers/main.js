@@ -2,9 +2,6 @@ var mysql = require('mysql');
 var connection;
 const data = require('../lib/data.js');
 
-// express-mysql-session
-// https://github.com/chill117/express-mysql-session
-
 function openConnection() {
     connection = mysql.createConnection({
         host: 'localhost',
@@ -86,6 +83,7 @@ exports.setGoal = function (req, res) {
     if (req.query.sl) {
         req.session.usersetting.sl = req.query.sl;
     }
+    var stuLocation;
 
     var locations = data.getLocations();
     var studentLocs = [];
@@ -101,14 +99,12 @@ exports.setGoal = function (req, res) {
         temp.code = location.code;
         if (temp.code == req.session.usersetting.sl) {
             temp.selected = ' selected';
+            stuLocation = temp.code;
         } else {
             temp.selected = '';
         }
         studentLocs.push(temp);
 
-        if (i == 0) {
-            selectedUniversityLoc = location.code;
-        }
         var temp2 = {};
         temp2.name = location.name;
         temp2.code = location.code;
@@ -119,6 +115,13 @@ exports.setGoal = function (req, res) {
             temp2.selected = '';
         }
         universityLocs.push(temp2);
+    }
+    if (!stuLocation) {
+        stuLocation = locations[0].code;
+    }
+    req.session.usersetting.sl = stuLocation;
+    if (!selectedUniversityLoc) {
+        selectedUniversityLoc = locations[0].code;
     }
 
     var types = data.getStudentTypes();
@@ -179,11 +182,12 @@ exports.setGoal = function (req, res) {
 
     var isShowEmptyResult = false;
     var scoreLine = [];
-    if (req.query.sl && majorClassCode && subClassCode && req.query.ul) {
+
+    if (stuLocation && majorClassCode && subClassCode && selectedUniversityLoc) {
         var majorLines = [];
         var universityLines = [];
-        majorLines = data.getMajorLine(req.query.sl, subClassCode, req.query.ul);
-        universityLines = data.getUniversityLine(req.query.sl, req.query.ul);
+        majorLines = data.getMajorLine(stuLocation, subClassCode, selectedUniversityLoc);
+        universityLines = data.getUniversityLine(stuLocation, selectedUniversityLoc);
         var j = 0, lengthUniversity = 0, lengthMajor = 0;
         if (universityLines) {
             lengthUniversity = universityLines.length;
