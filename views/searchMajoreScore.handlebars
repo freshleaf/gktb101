@@ -31,7 +31,13 @@
         <p>查询专业名称：<strong>{{searchKey}}</strong></p>
     {{/if}}
     {{#if major}}
-        <p><strong>{{major.name}}</strong></p>
+        <p>
+            <strong>{{major.name}}</strong><br>
+            同类专业：
+            {{#each similarList}}
+                <a class="mr-3" href="{{url}}">{{name}}</a>
+            {{/each}}
+        </p>
         <div class="d-flex justify-content-between mb-4">
             <div>
                 <form class="form-inline" id="contentForm">
@@ -60,8 +66,8 @@
                     <caption>{{major.name}}专业分数线（注：只对 985/211 高校进行了匹配）</caption>
                     <thead class="thead-light">
                     <tr>
-                        <th>考生所在地</th>
                         <th>专业名称</th>
+                        <th>高校所在地</th>
                         <th>高校名称</th>
                         <th>年份</th>
                         <th>文理科</th>
@@ -74,8 +80,8 @@
                     <tbody>
                     {{#each resultList}}
                         <tr {{#if isFirstItem}}class="table-info"{{/if}}{{#unless isFirstItem}}class="text-muted" hidden{{/unless}}>
-                            <td>{{locNmae}}</td>
                             <td>{{../major.name}}</td>
+                            <td>{{locNmae}}</td>
                             <td>{{university}}</td>
                             <td>{{year}}</td>
                             <td>{{type}}</td>

@@ -305,6 +305,7 @@ exports.searchMajorScore = function (req, res) {
     var allList = [];
     var someList = [];
     var resultList = [];
+    var similarList = [];
     var majorInfo;
 
     var isShowAll = false;
@@ -381,6 +382,19 @@ exports.searchMajorScore = function (req, res) {
             var seoKeywords = majorInfo.name + '专业历年分数线,';
             seoKeywords += '高考,高考志愿填报,高考专业分数线,211,985,重点大学专业分数线,专业线';
         }
+
+        // get same subclass major list
+        var similarMajors = data.getSameSubClassMajors(majorInfo.code);
+        for (var i = 0; i < similarMajors.length; i++) {
+            if (similarMajors[i].code == majorInfo.code) {
+                continue;
+            }
+            var temp = {};
+            temp.url = '/search/major?code=' + similarMajors[i].code;
+            temp.name = similarMajors[i].name;
+            similarList.push(temp);
+        }
+
         if (!req.session.usersetting) {
             req.session.usersetting = createSessionSetting();
         }
@@ -420,7 +434,7 @@ exports.searchMajorScore = function (req, res) {
             var temp = {};
             temp.locNmae = item.location_name;
             temp.university = item.university_name;
-            temp.type = item.student_type
+            temp.type = item.student_type;
             temp.year = item.year;
             temp.batch = item.batch;
             if (item.max_score) {
@@ -459,6 +473,7 @@ exports.searchMajorScore = function (req, res) {
         someList: someList,
         someLength: someList.length,
         major: majorInfo,
+        similarList: similarList,
         resultList: resultList,
         seoTitle: seoTitle,
         seoKeywords: seoKeywords,
