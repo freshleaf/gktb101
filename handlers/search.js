@@ -96,6 +96,7 @@ exports.searchUniversityScore = function (req, res) {
     var someList = [];
     var resultList = [];
     var universityInfo;
+    var studengLocName;
 
     if (code) {
         // search by code
@@ -211,6 +212,7 @@ exports.searchUniversityScore = function (req, res) {
             temp.name = location.name;
             if (temp.code == locationCode) {
                 temp.selected = ' selected';
+                studengLocName = location.name;
                 isFoundLoc = true;
             } else {
                 temp.selected = '';
@@ -220,9 +222,17 @@ exports.searchUniversityScore = function (req, res) {
         var paramLoc = locationCode;
         if (!isFoundLoc) {
             paramLoc = studentLocs[0].code;
+            studengLocName = studentLocs[0].name;
         }
 
         var scoreList = data.getUniversityScoreByCode(universityInfo.code, paramLoc);
+        var tempYear = 0;
+        var isShowMix = false;
+        var year = req.query.year;
+        if (!year && scoreList.length > 0) {
+            year = scoreList[0].year;
+        }
+        var yearList = [];
         var tempYear = 0;
         for (var i = 0; i < scoreList.length; i++) {
             if (tempYear != scoreList[i].year) {
@@ -231,6 +241,8 @@ exports.searchUniversityScore = function (req, res) {
                 temp.year = scoreList[i].year;
                 temp.loactionName = scoreList[i].location_name;
                 resultList.push(temp);
+                // get year range
+                yearList.push({'year': tempYear});
             }
             if (scoreList[i].student_type == '文科') {
                 temp.artMaxScore = scoreList[i].max_score;
@@ -243,6 +255,7 @@ exports.searchUniversityScore = function (req, res) {
                 temp.enginAveScore = scoreList[i].average_score;
                 temp.enginAdmissions = scoreList[i].admissions_number;
             } else if (scoreList[i].student_type == '综合') {
+                isShowMix = true;
                 temp.mixMaxScore = scoreList[i].max_score;
                 temp.mixMinScore = scoreList[i].min_score;
                 temp.mixAveScore = scoreList[i].average_score;
@@ -279,11 +292,21 @@ exports.searchUniversityScore = function (req, res) {
                 resultList[i].mixAveScore = '--';
             }
         }
+        // get all major score for the university and year
+        var majorScoreList = data.getUniversityMajorScore(universityInfo.code, paramLoc, year);
+        var type = '';
+        for (var i = 0; i < majorScoreList.length; i++) {
+            if (type != majorScoreList[i].student_type) {
+                type = majorScoreList[i].student_type;
+                majorScoreList[i].firstLine = true;
+            }
+        }
     }
 
     res.render('searchUniversityScore', {
         searchKey: searchContent,
         location: studentLocs,
+        studentLocName: studengLocName,
         code: code,
         allList: allList,
         someList: someList,
@@ -292,6 +315,10 @@ exports.searchUniversityScore = function (req, res) {
         resultList: resultList,
         seoTitle: seoTitle,
         seoKeywords: seoKeywords,
+        isShowMix: isShowMix,
+        majorScoreList: majorScoreList,
+        yearList: yearList,
+        year: year,
     });
 };
 

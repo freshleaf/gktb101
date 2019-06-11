@@ -38,7 +38,7 @@
             {{#if university.alias}}（{{university.alias}}）{{/if}}
             {{#if university.loc}}<span class="ml-2">所在地：{{university.loc}}</span>{{/if}}
         </p>
-        <form class="form-inline mt-4 mb-4" id="contentForm">
+        <form class="form-inline mt-4 mb-2" id="contentForm">
             <div class="col-auto">
                 <label for="studentLocation" class="col-form-label-sm">考生所在地</label>
             </div>
@@ -48,6 +48,7 @@
                 {{/each}}
             </select>
             <input type="hidden" name="code" value="{{code}}" />
+            <input id="yearHidden" type="hidden" name="year" value="{{year}}" />
         </form>
         {{#if resultList}}
         <div class="table-responsive-md">
@@ -59,7 +60,9 @@
                     <th rowspan="2">年份</th>
                     <th colspan="4">文科</th>
                     <th colspan="4">理科</th>
-                    <th colspan="4">综合</th>
+                    {{#if isShowMix}}
+                        <th colspan="4">综合</th>
+                    {{/if}}
                 </tr>
                 <tr>
                     <th>最高分</th>
@@ -70,10 +73,12 @@
                     <th>最低分</th>
                     <th>平均分</th>
                     <th>录取人数</th>
-                    <th>最高分</th>
-                    <th>最低分</th>
-                    <th>平均分</th>
-                    <th>录取人数</th>
+                    {{#if isShowMix}}
+                        <th>最高分</th>
+                        <th>最低分</th>
+                        <th>平均分</th>
+                        <th>录取人数</th>
+                    {{/if}}
                 </tr>
                 </thead>
                 <tbody>
@@ -89,10 +94,12 @@
                         <td>{{enginMinScore}}</td>
                         <td>{{enginAveScore}}</td>
                         <td>{{enginAdmissions}}</td>
-                        <td>{{mixMaxScore}}</td>
-                        <td>{{mixMinScore}}</td>
-                        <td>{{mixAveScore}}</td>
-                        <td>{{mixAdmissions}}</td>
+                        {{#if ../isShowMix}}
+                            <td>{{mixMaxScore}}</td>
+                            <td>{{mixMinScore}}</td>
+                            <td>{{mixAveScore}}</td>
+                            <td>{{mixAdmissions}}</td>
+                        {{/if}}
                     </tr>
                 {{/each}}
                 </tbody>
@@ -100,11 +107,57 @@
         </div>
         {{/if}}
         {{#unless resultList}}
-            <p class="mb-5">未找到数据</p>
+            <p class="mb-5">未找到高校分数线数据</p>
         {{/unless}}
         <div class="text-md-right mb-3">
             <a href="/search/university">查看所有985/211高校 >></a>
         </div>
+        <hr>
+        <p><strong>{{university.name}} {{studentLocName}}</strong> 专业招生分数线</p>
+        <form class="form-inline mb-2">
+            <div class="col-auto">
+                <label for="yearList" class="col-form-label-sm">年份</label>
+            </div>
+            <select id="yearSelect" class="form-control form-control-sm" name="year">
+                {{#each yearList}}
+                    <option value="{{year}}">{{year}}</option>
+                {{/each}}
+            </select>
+        </form>
+        {{#if majorScoreList}}
+            <div class="table-responsive-md">
+                <table class="table table-bordered table-hover table-sm table-striped">
+                    <caption>{{university.name}} 专业招生分数线</caption>
+                    <thead class="thead-light">
+                    <tr>
+                        <th>年份</th>
+                        <th>专业名称</th>
+                        <th>文理科</th>
+                        <th>批次</th>
+                        <th>最高分</th>
+                        <th>最低分</th>
+                        <th>平均分</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {{#each majorScoreList}}
+                        <tr {{#if firstLine}}class="table-info"{{/if}}>
+                            <td>{{year}}</td>
+                            <td>{{name}}</td>
+                            <td>{{student_type}}</td>
+                            <td>{{batch}}</td>
+                            <td>{{#if max_score}}{{max_score}}{{/if}}{{#unless max_score}}--{{/unless}}</td>
+                            <td>{{#if min_score}}{{min_score}}{{/if}}{{#unless min_score}}--{{/unless}}</td>
+                            <td>{{#if average_score}}{{average_score}}{{/if}}{{#unless average_score}}--{{/unless}}</td>
+                        </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        {{/if}}
+        {{#unless majorScoreList}}
+            <p class="mb-5">未找到学校{{year}}年专业录取数据</p>
+        {{/unless}}
     {{/if}}
 
     {{#unless unversity}}
@@ -138,10 +191,14 @@
 {{#section 'script'}}
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#searchType').val("1");
+            $('#yearSelect').val("{{year}}");
         });
 
         $('#studentLocation').change(function () {
+            $('#contentForm').submit();
+        });
+        $('#yearSelect').change(function () {
+            $('#yearHidden').val($('#yearSelect').val());
             $('#contentForm').submit();
         });
     </script>
