@@ -35,6 +35,6 @@
     "gulp-eslint": "^5.0.0",
     "gulp-mocha": "^6.0.0",
     "loadtest": "^3.0.7",
-    "mocha": "^6.1.4"
+    "mocha": "^10.2.0"
   }
 }
